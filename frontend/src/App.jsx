@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import Sidebar from './components/Sidebar/Sidebar';
 import AssetsTab from './components/AssetsTab';
 import CriteriaTab from './components/CriteriaTab';
 import IndicatorsTab from './components/IndicatorsTab';
@@ -6,51 +7,58 @@ import BacktestTab from './components/BacktestTab';
 
 export default function App() {
   const [activeTab, setActiveTab] = useState('backtest');
+  const [isMobileOpen, setIsMobileOpen] = useState(false);
 
   return (
     <div className="app-container">
-      <header style={{ marginBottom: '32px', textAlign: 'center' }}>
-        <h1 className="gradient-text" style={{ fontSize: '2.5rem', marginBottom: '8px' }}>
-          Value Investing Backtest System
-        </h1>
-        <p style={{ color: 'var(--text-secondary)', fontSize: '1.05rem', maxWidth: '700px', margin: '0 auto' }}>
-          Simulador de acumulação de capital buy-only com aportes periódicos na B3, aplicando filtros de Décio Bazin e Benjamin Graham sobre fundamentos reais ano a ano.
-        </p>
-      </header>
+      <Sidebar
+        activeTab={activeTab}
+        setActiveTab={setActiveTab}
+        isMobileOpen={isMobileOpen}
+        setIsMobileOpen={setIsMobileOpen}
+      />
 
-      <nav className="tabs-nav" style={{ justifyContent: 'center' }}>
-        <button
-          className={`tab-button ${activeTab === 'assets' ? 'active' : ''}`}
-          onClick={() => setActiveTab('assets')}
-        >
-          1. Cadastrar Ativos
-        </button>
-        <button
-          className={`tab-button ${activeTab === 'criteria' ? 'active' : ''}`}
-          onClick={() => setActiveTab('criteria')}
-        >
-          2. Estratégia de Compra
-        </button>
-        <button
-          className={`tab-button ${activeTab === 'indicators' ? 'active' : ''}`}
-          onClick={() => setActiveTab('indicators')}
-        >
-          3. Indicadores Anuais
-        </button>
-        <button
-          className={`tab-button ${activeTab === 'backtest' ? 'active' : ''}`}
-          onClick={() => setActiveTab('backtest')}
-        >
-          4. Motor de Backtest
-        </button>
-      </nav>
+      <div className="main-wrapper">
+        <header className="mobile-top-bar">
+          <div className="sidebar-brand">
+            <div className="brand-icon">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                <line x1="12" y1="1" x2="12" y2="23" />
+                <path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6" />
+              </svg>
+            </div>
+            <span className="brand-title gradient-text" style={{ fontWeight: 700 }}>Value Investing</span>
+          </div>
+          <button
+            className="hamburger-btn"
+            onClick={() => setIsMobileOpen(!isMobileOpen)}
+            aria-label="Abrir menu navigation"
+          >
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+              <line x1="3" y1="12" x2="21" y2="12" />
+              <line x1="3" y1="6" x2="21" y2="6" />
+              <line x1="3" y1="18" x2="21" y2="18" />
+            </svg>
+          </button>
+        </header>
 
-      <main>
-        {activeTab === 'assets' && <AssetsTab />}
-        {activeTab === 'criteria' && <CriteriaTab />}
-        {activeTab === 'indicators' && <IndicatorsTab />}
-        {activeTab === 'backtest' && <BacktestTab />}
-      </main>
+        <header className="app-header">
+          <h1 className="gradient-text" style={{ fontSize: '2rem', marginBottom: '6px' }}>
+            Value Investing Backtest System
+          </h1>
+          <p style={{ color: 'var(--text-secondary)', fontSize: '0.95rem', maxWidth: '800px' }}>
+            Simulador de acumulação de capital buy-only com aportes periódicos na B3, aplicando filtros de Décio Bazin e Benjamin Graham sobre fundamentos reais ano a ano.
+          </p>
+        </header>
+
+        <main className="main-content">
+          {activeTab === 'assets' && <AssetsTab />}
+          {activeTab === 'criteria' && <CriteriaTab />}
+          {activeTab === 'indicators' && <IndicatorsTab />}
+          {activeTab === 'backtest' && <BacktestTab />}
+        </main>
+      </div>
     </div>
   );
 }
+
