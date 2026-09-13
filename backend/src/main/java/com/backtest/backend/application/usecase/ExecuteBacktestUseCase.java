@@ -184,7 +184,9 @@ public class ExecuteBacktestUseCase implements ExecuteBacktestPort {
             while (purchaseIndex < purchases.size() && !purchases.get(purchaseIndex).getData().isAfter(currentDate)) {
                 Purchase p = purchases.get(purchaseIndex);
                 sharesHeld.put(p.getTicker(), sharesHeld.getOrDefault(p.getTicker(), BigDecimal.ZERO).add(p.getCotas()));
-                accumulatedInvested = accumulatedInvested.add(p.getValorAportado());
+                if (!Boolean.TRUE.equals(p.getIsReinvestimento())) {
+                    accumulatedInvested = accumulatedInvested.add(p.getValorAportado());
+                }
                 purchaseIndex++;
             }
 

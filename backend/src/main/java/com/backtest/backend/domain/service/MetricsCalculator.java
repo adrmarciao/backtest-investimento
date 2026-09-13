@@ -20,6 +20,7 @@ public class MetricsCalculator {
             return BigDecimal.ZERO;
         }
         return purchases.stream()
+                .filter(p -> !Boolean.TRUE.equals(p.getIsReinvestimento()))
                 .map(Purchase::getValorAportado)
                 .filter(Objects::nonNull)
                 .reduce(BigDecimal.ZERO, BigDecimal::add)
@@ -154,7 +155,11 @@ public class MetricsCalculator {
 
         for (Purchase p : purchases) {
             String ticker = p.getTicker();
-            totalAportadoMap.put(ticker, totalAportadoMap.getOrDefault(ticker, BigDecimal.ZERO).add(p.getValorAportado()));
+            if (!Boolean.TRUE.equals(p.getIsReinvestimento())) {
+                totalAportadoMap.put(ticker, totalAportadoMap.getOrDefault(ticker, BigDecimal.ZERO).add(p.getValorAportado()));
+            } else {
+                totalAportadoMap.putIfAbsent(ticker, BigDecimal.ZERO);
+            }
             totalCotasMap.put(ticker, totalCotasMap.getOrDefault(ticker, BigDecimal.ZERO).add(p.getCotas()));
         }
 

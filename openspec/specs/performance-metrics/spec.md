@@ -5,11 +5,11 @@ Cálculo e exposição das métricas quantitativas de desempenho de um backtest 
 ## Requirements
 
 ### Requirement: Calcular retorno total e anualizado
-O sistema SHALL calcular o retorno percentual total do portfólio e o retorno anualizado (CAGR). O retorno é calculated comparando o valor de mercado atual do portfólio (cotas acumuladas × preço atual) com o total aportado.
+O sistema SHALL calcular o retorno percentual total do portfólio e o retorno anualizado (CAGR). O retorno é calculado comparando o valor de mercado atual do portfólio (cotas acumuladas × preço atual) com o total aportado **de bolso** (excluindo valores reinvestidos a partir de dividendos).
 
 #### Scenario: Retorno total calculated
 - **WHEN** o backtest termina com pelo menos uma compra realizada
-- **THEN** o sistema SHALL retornar retorno total em percentual ((valor_final - total_aportado) / total_aportado × 100) e o CAGR para o período
+- **THEN** o sistema SHALL retornar retorno total em percentual ((valor_final - total_aportado_de_bolso) / total_aportado_de_bolso × 100) e o CAGR para o período, onde total_aportado_de_bolso exclui compras marcadas como reinvestimento de dividendos
 
 #### Scenario: Período inferior a 1 ano
 - **WHEN** o período simulado é inferior a 12 meses
@@ -45,8 +45,15 @@ O sistema SHALL comparar o retorno da estratégia com o retorno do IBOVESPA para
 - **THEN** o sistema SHALL retornar: retorno da estratégia, retorno do IBOVESPA, alfa e se a estratégia superou o índice
 
 ### Requirement: Gerar resumo de operações
-O sistema SHALL gerar estatísticas sobre as compras realizadas: total de aportes, total investido, número de cotas acumuladas por ativo, preço médio de compra por ativo.
+O sistema SHALL gerar estatísticas sobre as compras realizadas: total de aportes de bolso (excluindo reinvestimentos de dividendos), total investido incluindo reinvestimentos, número de cotas acumuladas por ativo, preço médio de compra por ativo. O preço médio e o retorno por ativo SHALL ser calculados usando apenas o valor aportado de bolso como base.
 
 #### Scenario: Resumo de compras gerado
 - **WHEN** o backtest executa ao menos uma compra
-- **THEN** o sistema SHALL retornar total de aportes realizados, valor total investido, cotas por ativo e preço médio por ativo
+- **THEN** o sistema SHALL retornar total de aportes de bolso realizados (excluindo reinvestimentos), valor total investido (incluindo reinvestimentos), cotas por ativo e preço médio por ativo baseado nos aportes de bolso
+
+### Requirement: Calcular estatísticas de proventos e reinvestimento
+O sistema SHALL calcular o total acumulado de dividendos recebidos no período, o valor total reinvestido em compras de cotas e o saldo final de dividendos não investidos retidos em caixa.
+
+#### Scenario: Métricas de dividendos calculadas
+- **WHEN** a simulação é concluída com reinvestimento de dividendos habilitado
+- **THEN** o sistema SHALL retornar no resumo das estatísticas: total de dividendos recebidos, total de dividendos reinvestidos e saldo final em caixa de dividendos

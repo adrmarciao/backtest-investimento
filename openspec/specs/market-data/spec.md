@@ -36,3 +36,18 @@ O sistema SHALL armazenar em cache os preços históricos buscados do Yahoo Fina
 #### Scenario: Preços servidos do cache
 - **WHEN** uma requisição é feita para um ticker e período já buscados recentemente (< 24h)
 - **THEN** o sistema SHALL retornar os dados do cache sem realizar nova chamada ao Yahoo Finance
+
+### Requirement: Buscar histórico de dividendos e proventos da B3
+O sistema SHALL recuperar o histórico de proventos e dividendos distribuídos (valor por ação e data-ex/pagamento) para ativos da B3 via Yahoo Finance (yfinance).
+
+#### Scenario: Dividendos recuperados com sucesso
+- **WHEN** o motor de backtest solicita o histórico de dividendos de um ativo válido da B3 para o período simulado
+- **THEN** o sistema SHALL retornar a série temporal de proventos pagos por ação com suas respectivas datas
+
+#### Scenario: Ativo sem histórico de dividendos no período
+- **WHEN** o ativo não distribuiu proventos no período simulado
+- **THEN** o sistema SHALL retornar uma lista vazia de dividendos sem gerar erro
+
+#### Scenario: Cache de dividendos local
+- **WHEN** o histórico de dividendos de um ativo foi buscado há menos de 24 horas
+- **THEN** o sistema SHALL retornar os dados de dividendos a partir do cache local

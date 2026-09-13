@@ -85,4 +85,39 @@ class MetricsCalculatorTest {
         // Return pct = (1500 - 1000) / 1000 * 100 = 50.00%
         assertEquals(new BigDecimal("50.00"), summary.getRetornoPercentual());
     }
+    @Test
+    void testCalculateTotalInvestedExcludesDividendReinvestments() {
+        List<Purchase> purchases = List.of(
+                new Purchase(LocalDate.now(), "WEGE3", new BigDecimal("10.00"), new BigDecimal("500.00"), new BigDecimal("50"), null, null, false),
+                new Purchase(LocalDate.now(), "WEGE3", new BigDecimal("12.00"), new BigDecimal("120.00"), new BigDecimal("10"), null, null, true)
+        );
+
+        BigDecimal total = calculator.calculateTotalInvested(purchases);
+        assertEquals(new BigDecimal("500.00"), total);
+    }
+
+    @Test
+    void testCalculateAssetSummariesExcludesDividendReinvestments() {
+        List<Purchase> purchases = List.of(
+                new Purchase(LocalDate.now(), "WEGE3", new BigDecimal("10.00"), new BigDecimal("500.00"), new BigDecimal("50.0"), null, null, false),
+                new Purchase(LocalDate.now(), "WEGE3", new BigDecimal("20.00"), new BigDecimal("200.00"), new BigDecimal("10.0"), null, null, true)
+        );
+
+        Map<String, BigDecimal> currentPrices = Map.of("WEGE3", new BigDecimal("20.00"));
+        List<AssetSummary> summaries = calculator.calculateAssetSummaries(purchases, currentPrices);
+
+        assertEquals(1, summaries.size());
+        AssetSummary summary = summaries.get(0);
+        assertEquals("WEGE3", summary.getTicker());
+        // Total aportado is only from the regular purchase
+        assertEquals(new BigDecimal("500.00"), summary.getTotalAportado());
+        // Total cotas is 50 + 10 = 60
+        assertEquals(new BigDecimal("60.0"), summary.getTotalCotas());
+        // Preco medio = 500 / 60 = 8.3333
+        assertEquals(new BigDecimal("8.3333"), summary.getPrecoMedio());
+        // Current value = 60 * 20 = 1200.00
+        assertEquals(new BigDecimal("1200.00"), summary.getValorAtual());
+        // Return pct = (1200 - 500) / 500 * 100 = 140.00%
+        assertEquals(new BigDecimal("140.00"), summary.getRetornoPercentual());
+    }
 }

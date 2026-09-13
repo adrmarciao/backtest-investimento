@@ -5,15 +5,19 @@ Interface React que apresenta visualmente os resultados de um backtest buy-only,
 ## Requirements
 
 ### Requirement: Exibir gráfico de evolução patrimonial
-O sistema SHALL exibir um gráfico de linha interativo mostrando a evolução do valor do portfólio ao longo do tempo, com linha paralela do IBOVESPA para comparação, ambos indexados ao valor inicial (base 100).
+O sistema SHALL exibir um gráfico de linha interativo mostrando a evolução do valor do portfólio ao longo do tempo, com linha paralela do IBOVESPA para comparação, ambos indexados ao valor inicial (base 100). A normalização base 100 do portfólio SHALL usar como denominador apenas o valor aportado de bolso pelo investidor, excluindo compras realizadas com reinvestimento de dividendos.
 
 #### Scenario: Gráfico renderizado após simulação
 - **WHEN** o backtest é concluído com sucesso
-- **THEN** o sistema SHALL renderizar o gráfico com a evolução do portfólio e do IBOVESPA normalizados para base 100
+- **THEN** o sistema SHALL renderizar o gráfico com a evolução do portfólio normalizada como (valor_patrimônio / aportes_de_bolso × 100) e do IBOVESPA normalizado para base 100
 
 #### Scenario: Hover no gráfico mostra detalhes
 - **WHEN** o usuário posiciona o cursor sobre um ponto do gráfico
-- **THEN** o sistema SHALL exibir tooltip com data, valor do portfólio, valor do IBOVESPA e diferença percentual
+- **THEN** o sistema SHALL exibir tooltip com data, valor do portfólio, valor aportado acumulado (apenas aportes de bolso), valor do IBOVESPA e diferença percentual
+
+#### Scenario: Reinvestimento de dividendos refletido no gráfico
+- **WHEN** dividendos são reinvestidos em novas cotas durante o backtest
+- **THEN** o valor do portfólio SHALL refletir as cotas adicionais compradas com dividendos, e a normalização base 100 SHALL subir proporcionalmente ao ganho real (denominador mantém apenas aportes de bolso)
 
 ### Requirement: Exibir linha do tempo de compras
 O sistema SHALL exibir uma visualização das compras realizadas ao longo do tempo, mostrando em quais períodos o sistema comprou e em quais não comprou, e os motivos.
@@ -57,3 +61,10 @@ O sistema SHALL informar ao usuário que a simulação está em execução, impe
 #### Scenario: Erro de simulação exibido
 - **WHEN** o backend retorna erro
 - **THEN** o sistema SHALL exibir mensagem de erro descritiva e reabilitar o formulário
+
+### Requirement: Exibir métricas e histórico de dividendos reinvestidos
+O sistema SHALL apresentar no painel de resultados cards indicativos do valor total de dividendos recebidos, total reinvestido e saldo em caixa, além de identificar na tabela de compras quais operações foram realizadas através de reinvestimento de proventos.
+
+#### Scenario: Visualização de dividendos na interface
+- **WHEN** os resultados do backtest são renderizados no frontend
+- **THEN** o sistema SHALL exibir os cards de métricas de dividendos e destacar as compras de reinvestimento na tabela de histórico
