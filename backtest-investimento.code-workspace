@@ -1,0 +1,37 @@
+{
+  "folders": [
+    {
+      "name": "Backend (Java / Spring Boot)",
+      "path": "backend"
+    },
+    {
+      "name": "Frontend (React / Vite)",
+      "path": "frontend"
+    },
+    {
+      "name": "Project Root",
+      "path": "."
+    }
+  ],
+  "settings": {
+    "java.import.maven.enabled": true,
+    "java.configuration.updateBuildConfiguration": "automatic",
+    "java.import.projects": [
+      "backend"
+    ],
+    "java.project.sourcePaths": [
+      "backend/src/main/java",
+      "backend/src/test/java"
+    ],
+    "files.exclude": {
+      "**/target": true,
+      "**/node_modules": true,
+      "**/dist": true
+    },
+    "search.exclude": {
+      "**/target": true,
+      "**/node_modules": true,
+      "**/dist": true
+    }
+  }
+}
