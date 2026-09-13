@@ -4,6 +4,8 @@ import com.backtest.backend.domain.entity.DividendPayment;
 import com.backtest.backend.domain.entity.HistoricalPrice;
 import com.backtest.backend.domain.entity.Periodicity;
 import com.backtest.backend.domain.port.out.PriceFetcherGatewayPort;
+import com.backtest.backend.infrastructure.adapter.out.persistence.DividendCacheDocument;
+import com.backtest.backend.infrastructure.adapter.out.persistence.DividendCacheMongoRepository;
 import com.backtest.backend.infrastructure.adapter.out.persistence.PriceCacheDocument;
 import com.backtest.backend.infrastructure.adapter.out.persistence.PriceCacheMongoRepository;
 import org.springframework.stereotype.Component;
@@ -18,10 +20,14 @@ public class YahooFinancePriceFetcherGatewayAdapter implements PriceFetcherGatew
 
     private final YahooFinanceClient yahooFinanceClient;
     private final PriceCacheMongoRepository cacheRepository;
+    private final DividendCacheMongoRepository dividendCacheRepository;
 
-    public YahooFinancePriceFetcherGatewayAdapter(YahooFinanceClient yahooFinanceClient, PriceCacheMongoRepository cacheRepository) {
+    public YahooFinancePriceFetcherGatewayAdapter(YahooFinanceClient yahooFinanceClient,
+                                                 PriceCacheMongoRepository cacheRepository,
+                                                 DividendCacheMongoRepository dividendCacheRepository) {
         this.yahooFinanceClient = yahooFinanceClient;
         this.cacheRepository = cacheRepository;
+        this.dividendCacheRepository = dividendCacheRepository;
     }
 
     @Override
@@ -48,12 +54,33 @@ public class YahooFinancePriceFetcherGatewayAdapter implements PriceFetcherGatew
 
     @Override
     public List<DividendPayment> fetchHistoricalDividends(String ticker, LocalDate start, LocalDate end) {
-        return yahooFinanceClient.fetchDividends(ticker, start, end);
+        String cacheKey = buildDividendCacheKey(ticker, start, end);
+
+        // 1. Verificar no Cache
+        Optional<DividendCacheDocument> cached = dividendCacheRepository.findById(cacheKey);
+        if (cached.isPresent() && cached.get().getDividends() != null) {
+            return cached.get().getDividends();
+        }
+
+        // 2. Cache miss -> Buscar no Yahoo Finance
+        List<DividendPayment> dividends = yahooFinanceClient.fetchDividends(ticker, start, end);
+
+        // 3. Salvar no cache se não nulo (incluindo lista vazia para evitar cache stampede)
+        if (dividends != null) {
+            DividendCacheDocument cacheDoc = new DividendCacheDocument(cacheKey, ticker, dividends, Instant.now());
+            dividendCacheRepository.save(cacheDoc);
+        }
+
+        return dividends;
     }
 
     private String buildCacheKey(String ticker, LocalDate start, LocalDate end, Periodicity periodicity) {
         String safeTicker = ticker != null ? ticker.trim().toUpperCase() : "UNKNOWN";
         return safeTicker + "_" + start + "_" + end + "_" + periodicity;
     }
-}
 
+    private String buildDividendCacheKey(String ticker, LocalDate start, LocalDate end) {
+        String safeTicker = ticker != null ? ticker.trim().toUpperCase() : "UNKNOWN";
+        return safeTicker + "_" + start + "_" + end;
+    }
+}
