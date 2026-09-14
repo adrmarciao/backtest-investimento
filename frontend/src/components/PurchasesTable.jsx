@@ -1,4 +1,17 @@
 import React, { useState } from 'react';
+import Box from '@mui/material/Box';
+import Typography from '@mui/material/Typography';
+import Button from '@mui/material/Button';
+import Table from '@mui/material/Table';
+import TableBody from '@mui/material/TableBody';
+import TableCell from '@mui/material/TableCell';
+import TableContainer from '@mui/material/TableContainer';
+import TableHead from '@mui/material/TableHead';
+import TableRow from '@mui/material/TableRow';
+import Paper from '@mui/material/Paper';
+import Chip from '@mui/material/Chip';
+import Pagination from '@mui/material/Pagination';
+import FileDownloadIcon from '@mui/icons-material/FileDownload';
 
 export default function PurchasesTable({ purchases, timeSeries }) {
   const [currentPage, setCurrentPage] = useState(1);
@@ -6,9 +19,11 @@ export default function PurchasesTable({ purchases, timeSeries }) {
 
   if (!purchases || purchases.length === 0) {
     return (
-      <div style={{ textAlign: 'center', padding: '30px', color: 'var(--text-muted)' }}>
-        Nenhuma compra foi realizada no período analisado. Os critérios fixos ou preços teto não foram satisfeitos.
-      </div>
+      <Box sx={{ textAlign: 'center', py: 4 }}>
+        <Typography variant="body1" sx={{ color: 'text.secondary' }}>
+          Nenhuma compra foi realizada no período analisado. Os critérios fixos ou preços teto não foram satisfeitos.
+        </Typography>
+      </Box>
     );
   }
 
@@ -34,75 +49,120 @@ export default function PurchasesTable({ purchases, timeSeries }) {
   };
 
   return (
-    <div>
-      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '16px' }}>
-        <h3 style={{ fontSize: '1.1rem' }}>Histórico de Compras Executadas ({purchases.length} compras)</h3>
-        <button className="btn btn-secondary" onClick={exportToCSV}>
-          📥 Exportar CSV
-        </button>
-      </div>
+    <Box>
+      <Box
+        sx={{
+          display: 'flex',
+          justifyContent: 'space-between',
+          alignItems: 'center',
+          mb: 2,
+          flexWrap: 'wrap',
+          gap: 1.5,
+        }}
+      >
+        <Typography variant="h6" sx={{ fontWeight: 700 }}>
+          Histórico de Compras Executadas ({purchases.length} compras)
+        </Typography>
+        <Button
+          variant="outlined"
+          size="small"
+          startIcon={<FileDownloadIcon />}
+          onClick={exportToCSV}
+        >
+          Exportar CSV
+        </Button>
+      </Box>
 
-      <div className="custom-table-container">
-        <table className="custom-table">
-          <thead>
-            <tr>
-              <th>Data</th>
-              <th>Ticker</th>
-              <th>Tipo</th>
-              <th>Preço de Compra</th>
-              <th>Aporte / Reinvestimento</th>
-              <th>Cotas Adquiridas</th>
-              <th>Teto Bazin do Ano</th>
-              <th>Teto Graham do Ano</th>
-            </tr>
-          </thead>
-          <tbody>
+      <TableContainer component={Paper} sx={{ borderRadius: 2, border: '1px solid #43474e', mb: 2 }}>
+        <Table size="small">
+          <TableHead>
+            <TableRow>
+              <TableCell>Data</TableCell>
+              <TableCell>Ticker</TableCell>
+              <TableCell>Tipo</TableCell>
+              <TableCell>Preço de Compra</TableCell>
+              <TableCell>Aporte / Reinvestimento</TableCell>
+              <TableCell>Cotas Adquiridas</TableCell>
+              <TableCell>Teto Bazin do Ano</TableCell>
+              <TableCell>Teto Graham do Ano</TableCell>
+            </TableRow>
+          </TableHead>
+          <TableBody>
             {currentItems.map((p, index) => (
-              <tr key={index}>
-                <td>{p.data}</td>
-                <td><strong>{p.ticker}</strong></td>
-                <td>
+              <TableRow key={index} hover>
+                <TableCell>{p.data}</TableCell>
+                <TableCell sx={{ fontWeight: 700, color: 'primary.main' }}>
+                  {p.ticker}
+                </TableCell>
+                <TableCell>
                   {p.isReinvestimento ? (
-                    <span className="badge badge-warning">💰 Reinvestimento</span>
+                    <Chip
+                      label="Reinvestimento"
+                      color="warning"
+                      size="small"
+                      sx={{ fontWeight: 600 }}
+                    />
                   ) : (
-                    <span className="badge" style={{ background: 'rgba(99, 102, 241, 0.2)', color: 'var(--accent-primary)' }}>💵 Aporte</span>
+                    <Chip
+                      label="Aporte"
+                      color="primary"
+                      size="small"
+                      sx={{ fontWeight: 600 }}
+                    />
                   )}
-                </td>
-                <td>R$ {p.preco?.toFixed(2)}</td>
-                <td>R$ {p.valorAportado?.toFixed(2)}</td>
-                <td>{p.cotas?.toFixed(4)}</td>
-                <td><span className="badge badge-success">R$ {p.tetoBazin?.toFixed(2)}</span></td>
-                <td><span className="badge badge-success">R$ {p.tetoGraham?.toFixed(2)}</span></td>
-              </tr>
+                </TableCell>
+                <TableCell>R$ {p.preco?.toFixed(2)}</TableCell>
+                <TableCell>R$ {p.valorAportado?.toFixed(2)}</TableCell>
+                <TableCell sx={{ fontFamily: "'JetBrains Mono', monospace" }}>
+                  {p.cotas?.toFixed(4)}
+                </TableCell>
+                <TableCell>
+                  <Chip
+                    label={`R$ ${p.tetoBazin?.toFixed(2)}`}
+                    color="success"
+                    size="small"
+                    variant="outlined"
+                  />
+                </TableCell>
+                <TableCell>
+                  <Chip
+                    label={`R$ ${p.tetoGraham?.toFixed(2)}`}
+                    color="success"
+                    size="small"
+                    variant="outlined"
+                  />
+                </TableCell>
+              </TableRow>
             ))}
-          </tbody>
-        </table>
-      </div>
+          </TableBody>
+        </Table>
+      </TableContainer>
 
       {totalPages > 1 && (
-        <div className="pagination">
-          <span style={{ fontSize: '0.85rem', color: 'var(--text-secondary)' }}>
+        <Box
+          sx={{
+            display: 'flex',
+            justifyContent: 'space-between',
+            alignItems: 'center',
+            pt: 1,
+            flexWrap: 'wrap',
+            gap: 2,
+          }}
+        >
+          <Typography variant="caption" sx={{ color: 'text.secondary' }}>
             Página {currentPage} de {totalPages}
-          </span>
-          <div style={{ display: 'flex', gap: '8px' }}>
-            <button
-              className="btn btn-secondary"
-              disabled={currentPage === 1}
-              onClick={() => setCurrentPage((prev) => Math.max(prev - 1, 1))}
-            >
-              Anterior
-            </button>
-            <button
-              className="btn btn-secondary"
-              disabled={currentPage === totalPages}
-              onClick={() => setCurrentPage((prev) => Math.min(prev + 1, totalPages))}
-            >
-              Próxima
-            </button>
-          </div>
-        </div>
+          </Typography>
+          <Pagination
+            count={totalPages}
+            page={currentPage}
+            onChange={(_, page) => setCurrentPage(page)}
+            color="primary"
+            size="small"
+          />
+        </Box>
       )}
-    </div>
+    </Box>
   );
 }
+
 

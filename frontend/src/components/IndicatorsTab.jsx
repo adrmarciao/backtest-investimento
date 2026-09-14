@@ -1,4 +1,29 @@
 import React, { useState, useEffect } from 'react';
+import Box from '@mui/material/Box';
+import Card from '@mui/material/Card';
+import CardContent from '@mui/material/CardContent';
+import Typography from '@mui/material/Typography';
+import TextField from '@mui/material/TextField';
+import Button from '@mui/material/Button';
+import FormControl from '@mui/material/FormControl';
+import InputLabel from '@mui/material/InputLabel';
+import Select from '@mui/material/Select';
+import MenuItem from '@mui/material/MenuItem';
+import Table from '@mui/material/Table';
+import TableBody from '@mui/material/TableBody';
+import TableCell from '@mui/material/TableCell';
+import TableContainer from '@mui/material/TableContainer';
+import TableHead from '@mui/material/TableHead';
+import TableRow from '@mui/material/TableRow';
+import Paper from '@mui/material/Paper';
+import Chip from '@mui/material/Chip';
+import IconButton from '@mui/material/IconButton';
+import CircularProgress from '@mui/material/CircularProgress';
+import SaveIcon from '@mui/icons-material/Save';
+import EditIcon from '@mui/icons-material/Edit';
+import DeleteOutlineIcon from '@mui/icons-material/DeleteOutlined';
+import CheckIcon from '@mui/icons-material/Check';
+import CloseIcon from '@mui/icons-material/Close';
 import { getAssets, getIndicators, saveIndicators, updateIndicators, deleteIndicators } from '../services/api';
 
 export default function IndicatorsTab() {
@@ -30,12 +55,14 @@ export default function IndicatorsTab() {
   });
 
   useEffect(() => {
-    getAssets().then((res) => {
-      setAssets(res.data);
-      if (res.data.length > 0) {
-        setSelectedTicker(res.data[0].ticker);
-      }
-    }).catch(console.error);
+    getAssets()
+      .then((res) => {
+        setAssets(res.data);
+        if (res.data.length > 0) {
+          setSelectedTicker(res.data[0].ticker);
+        }
+      })
+      .catch(console.error);
   }, []);
 
   const loadIndicators = async (ticker) => {
@@ -87,7 +114,13 @@ export default function IndicatorsTab() {
       });
       await loadIndicators(selectedTicker);
       // Reset form
-      setPl(''); setPvp(''); setDividaEbitda(''); setRoe(''); setDpa(''); setLpa(''); setVpa('');
+      setPl('');
+      setPvp('');
+      setDividaEbitda('');
+      setRoe('');
+      setDpa('');
+      setLpa('');
+      setVpa('');
     } catch (err) {
       alert('Erro ao salvar indicadores do ano');
     } finally {
@@ -153,243 +186,370 @@ export default function IndicatorsTab() {
   };
 
   return (
-    <div className="glass-card">
-      <h2 style={{ marginBottom: '16px' }}>Indicadores Fundamentalistas por Ano</h2>
+    <Card sx={{ p: 1 }}>
+      <CardContent>
+        <Typography variant="h5" component="h2" sx={{ fontWeight: 700, mb: 1 }}>
+          Indicadores Fundamentalistas por Ano
+        </Typography>
+        <Typography variant="body2" sx={{ color: 'text.secondary', mb: 3 }}>
+          Insira e gerencie o histórico de balanços anuais auditados para cálculo dos Tetos Bazin e Graham.
+        </Typography>
 
-      <div className="form-group" style={{ maxWidth: '300px', marginBottom: '24px' }}>
-        <label>Selecione o Ativo</label>
-        <select
-          className="form-control"
-          value={selectedTicker}
-          onChange={(e) => setSelectedTicker(e.target.value)}
-        >
-          {assets.map((a) => (
-            <option key={a.ticker} value={a.ticker}>
-              {a.ticker} (Aporte R$ {a.valorAporte})
-            </option>
-          ))}
-        </select>
-      </div>
+        <FormControl size="small" sx={{ minWidth: 260, mb: 4 }}>
+          <InputLabel id="ticker-select-label">Selecione o Ativo</InputLabel>
+          <Select
+            labelId="ticker-select-label"
+            label="Selecione o Ativo"
+            value={selectedTicker}
+            onChange={(e) => setSelectedTicker(e.target.value)}
+          >
+            {assets.map((a) => (
+              <MenuItem key={a.ticker} value={a.ticker}>
+                {a.ticker} (Aporte R$ {a.valorAporte})
+              </MenuItem>
+            ))}
+          </Select>
+        </FormControl>
 
-      {selectedTicker && (
-        <>
-          <form onSubmit={handleSubmit} style={{ background: 'var(--bg-glass)', padding: '16px', borderRadius: '12px', border: '1px solid var(--border-color)', marginBottom: '24px' }}>
-            <h3 style={{ fontSize: '1rem', marginBottom: '12px' }}>Cadastrar/Editar Ano para {selectedTicker}</h3>
-            
-            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(130px, 1fr))', gap: '12px' }}>
-              <div className="form-group">
-                <label>Ano</label>
-                <input type="number" className="form-control" value={ano} onChange={(e) => setAno(e.target.value)} required />
-              </div>
-              <div className="form-group">
-                <label>P/L</label>
-                <input type="number" step="0.01" className="form-control" value={pl} onChange={(e) => setPl(e.target.value)} placeholder="12.5" required />
-              </div>
-              <div className="form-group">
-                <label>P/VP</label>
-                <input type="number" step="0.01" className="form-control" value={pvp} onChange={(e) => setPvp(e.target.value)} placeholder="2.1" required />
-              </div>
-              <div className="form-group">
-                <label>Dív/EBITDA</label>
-                <input type="number" step="0.01" className="form-control" value={dividaEbitda} onChange={(e) => setDividaEbitda(e.target.value)} placeholder="1.4" required />
-              </div>
-              <div className="form-group">
-                <label>ROE (%)</label>
-                <input type="number" step="0.01" className="form-control" value={roe} onChange={(e) => setRoe(e.target.value)} placeholder="22.0" required />
-              </div>
-              <div className="form-group">
-                <label>DPA (Div/Ação)</label>
-                <input type="number" step="0.01" className="form-control" value={dpa} onChange={(e) => setDpa(e.target.value)} placeholder="1.50" required />
-              </div>
-              <div className="form-group">
-                <label>LPA (Lucro/Ação)</label>
-                <input type="number" step="0.01" className="form-control" value={lpa} onChange={(e) => setLpa(e.target.value)} placeholder="3.20" required />
-              </div>
-              <div className="form-group">
-                <label>VPA (Val.Patr/Ação)</label>
-                <input type="number" step="0.01" className="form-control" value={vpa} onChange={(e) => setVpa(e.target.value)} placeholder="18.00" required />
-              </div>
-            </div>
+        {selectedTicker && (
+          <>
+            <Box
+              component="form"
+              onSubmit={handleSubmit}
+              sx={{
+                backgroundColor: '#171c26',
+                p: 3,
+                borderRadius: 3,
+                border: '1px solid #43474e',
+                mb: 4,
+              }}
+            >
+              <Typography variant="subtitle1" sx={{ fontWeight: 700, mb: 2 }}>
+                Cadastrar/Editar Ano para {selectedTicker}
+              </Typography>
 
-            <div style={{ marginTop: '12px', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-              <div style={{ fontSize: '0.85rem', color: 'var(--text-secondary)' }}>
-                <strong>Tetos Calculados:</strong> Bazin: <span style={{ color: 'var(--success)' }}>{calculateBazinPreview(dpa)}</span> | Graham: <span style={{ color: 'var(--success)' }}>{calculateGrahamPreview(lpa, vpa)}</span>
-              </div>
-              <button type="submit" className="btn btn-primary" disabled={loading}>
-                {loading ? <div className="spinner" /> : 'Salvar Indicadores do Ano'}
-              </button>
-            </div>
-          </form>
+              <Box
+                sx={{
+                  display: 'grid',
+                  gridTemplateColumns: {
+                    xs: 'repeat(2, 1fr)',
+                    sm: 'repeat(4, 1fr)',
+                    md: 'repeat(8, 1fr)',
+                  },
+                  gap: 1.5,
+                  mb: 2,
+                }}
+              >
+                <TextField
+                  label="Ano"
+                  type="number"
+                  size="small"
+                  value={ano}
+                  onChange={(e) => setAno(e.target.value)}
+                  required
+                />
+                <TextField
+                  label="P/L"
+                  type="number"
+                  inputProps={{ step: '0.01' }}
+                  size="small"
+                  value={pl}
+                  onChange={(e) => setPl(e.target.value)}
+                  placeholder="12.5"
+                  required
+                />
+                <TextField
+                  label="P/VP"
+                  type="number"
+                  inputProps={{ step: '0.01' }}
+                  size="small"
+                  value={pvp}
+                  onChange={(e) => setPvp(e.target.value)}
+                  placeholder="2.1"
+                  required
+                />
+                <TextField
+                  label="Dív/EBITDA"
+                  type="number"
+                  inputProps={{ step: '0.01' }}
+                  size="small"
+                  value={dividaEbitda}
+                  onChange={(e) => setDividaEbitda(e.target.value)}
+                  placeholder="1.4"
+                  required
+                />
+                <TextField
+                  label="ROE (%)"
+                  type="number"
+                  inputProps={{ step: '0.01' }}
+                  size="small"
+                  value={roe}
+                  onChange={(e) => setRoe(e.target.value)}
+                  placeholder="22.0"
+                  required
+                />
+                <TextField
+                  label="DPA (R$)"
+                  type="number"
+                  inputProps={{ step: '0.01' }}
+                  size="small"
+                  value={dpa}
+                  onChange={(e) => setDpa(e.target.value)}
+                  placeholder="1.50"
+                  required
+                />
+                <TextField
+                  label="LPA (R$)"
+                  type="number"
+                  inputProps={{ step: '0.01' }}
+                  size="small"
+                  value={lpa}
+                  onChange={(e) => setLpa(e.target.value)}
+                  placeholder="3.20"
+                  required
+                />
+                <TextField
+                  label="VPA (R$)"
+                  type="number"
+                  inputProps={{ step: '0.01' }}
+                  size="small"
+                  value={vpa}
+                  onChange={(e) => setVpa(e.target.value)}
+                  placeholder="18.00"
+                  required
+                />
+              </Box>
 
-          <h3 style={{ marginBottom: '12px', fontSize: '1.1rem' }}>Histórico Fundamentalista Cadastrado</h3>
-          <div className="custom-table-container">
-            <table className="custom-table">
-              <thead>
-                <tr>
-                  <th>Ano</th>
-                  <th>P/L</th>
-                  <th>P/VP</th>
-                  <th>Dív/EBITDA</th>
-                  <th>ROE</th>
-                  <th>DPA</th>
-                  <th>LPA</th>
-                  <th>VPA</th>
-                  <th>Teto Bazin</th>
-                  <th>Teto Graham</th>
-                  <th>Ações</th>
-                </tr>
-              </thead>
-              <tbody>
-                {indicatorsList.length === 0 ? (
-                  <tr>
-                    <td colSpan="11" style={{ textAlign: 'center', color: 'var(--text-muted)' }}>
-                      Nenhum ano cadastrado para este ativo.
-                    </td>
-                  </tr>
-                ) : (
-                  indicatorsList.map((ind) => {
-                    const isEditing = ind.ano === editingYear;
-                    return (
-                      <tr key={ind.ano}>
-                        <td><strong>{ind.ano}</strong></td>
-                        {isEditing ? (
-                          <>
-                            <td>
-                              <input
-                                type="number"
-                                step="0.01"
-                                className="form-control"
-                                style={{ width: '70px', padding: '4px 6px' }}
-                                value={editForm.pl}
-                                onChange={(e) => handleEditInputChange('pl', e.target.value)}
-                              />
-                            </td>
-                            <td>
-                              <input
-                                type="number"
-                                step="0.01"
-                                className="form-control"
-                                style={{ width: '70px', padding: '4px 6px' }}
-                                value={editForm.pvp}
-                                onChange={(e) => handleEditInputChange('pvp', e.target.value)}
-                              />
-                            </td>
-                            <td>
-                              <input
-                                type="number"
-                                step="0.01"
-                                className="form-control"
-                                style={{ width: '70px', padding: '4px 6px' }}
-                                value={editForm.dividaEbitda}
-                                onChange={(e) => handleEditInputChange('dividaEbitda', e.target.value)}
-                              />
-                            </td>
-                            <td>
-                              <input
-                                type="number"
-                                step="0.01"
-                                className="form-control"
-                                style={{ width: '70px', padding: '4px 6px' }}
-                                value={editForm.roe}
-                                onChange={(e) => handleEditInputChange('roe', e.target.value)}
-                              />
-                            </td>
-                            <td>
-                              <input
-                                type="number"
-                                step="0.01"
-                                className="form-control"
-                                style={{ width: '70px', padding: '4px 6px' }}
-                                value={editForm.dpa}
-                                onChange={(e) => handleEditInputChange('dpa', e.target.value)}
-                              />
-                            </td>
-                            <td>
-                              <input
-                                type="number"
-                                step="0.01"
-                                className="form-control"
-                                style={{ width: '70px', padding: '4px 6px' }}
-                                value={editForm.lpa}
-                                onChange={(e) => handleEditInputChange('lpa', e.target.value)}
-                              />
-                            </td>
-                            <td>
-                              <input
-                                type="number"
-                                step="0.01"
-                                className="form-control"
-                                style={{ width: '70px', padding: '4px 6px' }}
-                                value={editForm.vpa}
-                                onChange={(e) => handleEditInputChange('vpa', e.target.value)}
-                              />
-                            </td>
-                            <td><span className="badge badge-success">{calculateBazinPreview(editForm.dpa)}</span></td>
-                            <td><span className="badge badge-success">{calculateGrahamPreview(editForm.lpa, editForm.vpa)}</span></td>
-                            <td>
-                              <div style={{ display: 'flex', gap: '6px' }}>
-                                <button
-                                  className="btn btn-primary"
-                                  style={{ padding: '6px 10px', fontSize: '0.85rem' }}
-                                  onClick={() => handleSaveEdit(ind.ano)}
-                                  title="Salvar alterações"
-                                >
-                                  ✓
-                                </button>
-                                <button
-                                  className="btn btn-secondary"
-                                  style={{ padding: '6px 10px', fontSize: '0.85rem' }}
-                                  onClick={handleCancelEdit}
-                                  title="Cancelar"
-                                >
-                                  ✕
-                                </button>
-                              </div>
-                            </td>
-                          </>
-                        ) : (
-                          <>
-                            <td>{ind.pl}</td>
-                            <td>{ind.pvp}</td>
-                            <td>{ind.dividaEbitda}</td>
-                            <td>{ind.roe}%</td>
-                            <td>R$ {ind.dpa}</td>
-                            <td>R$ {ind.lpa}</td>
-                            <td>R$ {ind.vpa}</td>
-                            <td><span className="badge badge-success">{calculateBazinPreview(ind.dpa)}</span></td>
-                            <td><span className="badge badge-success">{calculateGrahamPreview(ind.lpa, ind.vpa)}</span></td>
-                            <td>
-                              <div style={{ display: 'flex', gap: '6px' }}>
-                                <button
-                                  className="btn btn-secondary"
-                                  style={{ padding: '6px 10px', fontSize: '0.85rem' }}
-                                  onClick={() => handleStartEdit(ind)}
-                                  title="Editar indicador"
-                                >
-                                  ✏️ Editar
-                                </button>
-                                <button
-                                  className="btn btn-danger"
-                                  style={{ padding: '6px 10px', fontSize: '0.85rem' }}
-                                  onClick={() => handleDeleteYear(ind.ano)}
-                                  title="Excluir ano"
-                                >
-                                  Excluir
-                                </button>
-                              </div>
-                            </td>
-                          </>
-                        )}
-                      </tr>
-                    );
-                  })
-                )}
-              </tbody>
-            </table>
-          </div>
-        </>
-      )}
-    </div>
+              <Box
+                sx={{
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'space-between',
+                  flexWrap: 'wrap',
+                  gap: 2,
+                }}
+              >
+                <Typography variant="body2" sx={{ color: 'text.secondary' }}>
+                  <strong>Tetos Calculados:</strong> Bazin:{' '}
+                  <span style={{ color: '#10b981', fontWeight: 600 }}>
+                    {calculateBazinPreview(dpa)}
+                  </span>{' '}
+                  | Graham:{' '}
+                  <span style={{ color: '#10b981', fontWeight: 600 }}>
+                    {calculateGrahamPreview(lpa, vpa)}
+                  </span>
+                </Typography>
+                <Button
+                  type="submit"
+                  variant="contained"
+                  disabled={loading}
+                  startIcon={loading ? <CircularProgress size={18} color="inherit" /> : <SaveIcon />}
+                >
+                  {loading ? 'Salvando...' : 'Salvar Indicadores do Ano'}
+                </Button>
+              </Box>
+            </Box>
+
+            <Typography variant="h6" sx={{ fontWeight: 700, mb: 2 }}>
+              Histórico Fundamentalista Cadastrado
+            </Typography>
+
+            <TableContainer component={Paper} sx={{ borderRadius: 2, border: '1px solid #43474e' }}>
+              <Table size="small">
+                <TableHead>
+                  <TableRow>
+                    <TableCell>Ano</TableCell>
+                    <TableCell>P/L</TableCell>
+                    <TableCell>P/VP</TableCell>
+                    <TableCell>Dív/EBITDA</TableCell>
+                    <TableCell>ROE</TableCell>
+                    <TableCell>DPA</TableCell>
+                    <TableCell>LPA</TableCell>
+                    <TableCell>VPA</TableCell>
+                    <TableCell>Teto Bazin</TableCell>
+                    <TableCell>Teto Graham</TableCell>
+                    <TableCell align="right">Ações</TableCell>
+                  </TableRow>
+                </TableHead>
+                <TableBody>
+                  {indicatorsList.length === 0 ? (
+                    <TableRow>
+                      <TableCell colSpan={11} align="center" sx={{ py: 4, color: 'text.secondary' }}>
+                        Nenhum ano cadastrado para este ativo.
+                      </TableCell>
+                    </TableRow>
+                  ) : (
+                    indicatorsList.map((ind) => {
+                      const isEditing = ind.ano === editingYear;
+                      return (
+                        <TableRow key={ind.ano} hover>
+                          <TableCell sx={{ fontWeight: 700 }}>{ind.ano}</TableCell>
+                          {isEditing ? (
+                            <>
+                              <TableCell>
+                                <TextField
+                                  size="small"
+                                  type="number"
+                                  inputProps={{ step: '0.01' }}
+                                  value={editForm.pl}
+                                  onChange={(e) => handleEditInputChange('pl', e.target.value)}
+                                  sx={{ width: 75 }}
+                                />
+                              </TableCell>
+                              <TableCell>
+                                <TextField
+                                  size="small"
+                                  type="number"
+                                  inputProps={{ step: '0.01' }}
+                                  value={editForm.pvp}
+                                  onChange={(e) => handleEditInputChange('pvp', e.target.value)}
+                                  sx={{ width: 75 }}
+                                />
+                              </TableCell>
+                              <TableCell>
+                                <TextField
+                                  size="small"
+                                  type="number"
+                                  inputProps={{ step: '0.01' }}
+                                  value={editForm.dividaEbitda}
+                                  onChange={(e) =>
+                                    handleEditInputChange('dividaEbitda', e.target.value)
+                                  }
+                                  sx={{ width: 75 }}
+                                />
+                              </TableCell>
+                              <TableCell>
+                                <TextField
+                                  size="small"
+                                  type="number"
+                                  inputProps={{ step: '0.01' }}
+                                  value={editForm.roe}
+                                  onChange={(e) => handleEditInputChange('roe', e.target.value)}
+                                  sx={{ width: 75 }}
+                                />
+                              </TableCell>
+                              <TableCell>
+                                <TextField
+                                  size="small"
+                                  type="number"
+                                  inputProps={{ step: '0.01' }}
+                                  value={editForm.dpa}
+                                  onChange={(e) => handleEditInputChange('dpa', e.target.value)}
+                                  sx={{ width: 75 }}
+                                />
+                              </TableCell>
+                              <TableCell>
+                                <TextField
+                                  size="small"
+                                  type="number"
+                                  inputProps={{ step: '0.01' }}
+                                  value={editForm.lpa}
+                                  onChange={(e) => handleEditInputChange('lpa', e.target.value)}
+                                  sx={{ width: 75 }}
+                                />
+                              </TableCell>
+                              <TableCell>
+                                <TextField
+                                  size="small"
+                                  type="number"
+                                  inputProps={{ step: '0.01' }}
+                                  value={editForm.vpa}
+                                  onChange={(e) => handleEditInputChange('vpa', e.target.value)}
+                                  sx={{ width: 75 }}
+                                />
+                              </TableCell>
+                              <TableCell>
+                                <Chip
+                                  label={calculateBazinPreview(editForm.dpa)}
+                                  color="success"
+                                  size="small"
+                                  variant="outlined"
+                                />
+                              </TableCell>
+                              <TableCell>
+                                <Chip
+                                  label={calculateGrahamPreview(editForm.lpa, editForm.vpa)}
+                                  color="success"
+                                  size="small"
+                                  variant="outlined"
+                                />
+                              </TableCell>
+                              <TableCell align="right">
+                                <Box sx={{ display: 'flex', gap: 0.5, justifyContent: 'flex-end' }}>
+                                  <IconButton
+                                    size="small"
+                                    color="primary"
+                                    onClick={() => handleSaveEdit(ind.ano)}
+                                  >
+                                    <CheckIcon fontSize="small" />
+                                  </IconButton>
+                                  <IconButton
+                                    size="small"
+                                    color="inherit"
+                                    onClick={handleCancelEdit}
+                                  >
+                                    <CloseIcon fontSize="small" />
+                                  </IconButton>
+                                </Box>
+                              </TableCell>
+                            </>
+                          ) : (
+                            <>
+                              <TableCell>{ind.pl}</TableCell>
+                              <TableCell>{ind.pvp}</TableCell>
+                              <TableCell>{ind.dividaEbitda}</TableCell>
+                              <TableCell>{ind.roe}%</TableCell>
+                              <TableCell>R$ {ind.dpa}</TableCell>
+                              <TableCell>R$ {ind.lpa}</TableCell>
+                              <TableCell>R$ {ind.vpa}</TableCell>
+                              <TableCell>
+                                <Chip
+                                  label={calculateBazinPreview(ind.dpa)}
+                                  color="success"
+                                  size="small"
+                                  variant="outlined"
+                                />
+                              </TableCell>
+                              <TableCell>
+                                <Chip
+                                  label={calculateGrahamPreview(ind.lpa, ind.vpa)}
+                                  color="success"
+                                  size="small"
+                                  variant="outlined"
+                                />
+                              </TableCell>
+                              <TableCell align="right">
+                                <Box sx={{ display: 'flex', gap: 0.5, justifyContent: 'flex-end' }}>
+                                  <IconButton
+                                    size="small"
+                                    color="primary"
+                                    onClick={() => handleStartEdit(ind)}
+                                  >
+                                    <EditIcon fontSize="small" />
+                                  </IconButton>
+                                  <IconButton
+                                    size="small"
+                                    color="error"
+                                    onClick={() => handleDeleteYear(ind.ano)}
+                                  >
+                                    <DeleteOutlineIcon fontSize="small" />
+                                  </IconButton>
+                                </Box>
+                              </TableCell>
+                            </>
+                          )}
+                        </TableRow>
+                      );
+                    })
+                  )}
+                </TableBody>
+              </Table>
+            </TableContainer>
+          </>
+        )}
+      </CardContent>
+    </Card>
   );
 }
+
 

@@ -1,4 +1,11 @@
 import React, { useState } from 'react';
+import Box from '@mui/material/Box';
+import AppBar from '@mui/material/AppBar';
+import Toolbar from '@mui/material/Toolbar';
+import Typography from '@mui/material/Typography';
+import IconButton from '@mui/material/IconButton';
+import MenuIcon from '@mui/icons-material/Menu';
+import TrendingUpIcon from '@mui/icons-material/TrendingUp';
 import Sidebar from './components/Sidebar/Sidebar';
 import AssetsTab from './components/AssetsTab';
 import CriteriaTab from './components/CriteriaTab';
@@ -10,7 +17,7 @@ export default function App() {
   const [isMobileOpen, setIsMobileOpen] = useState(false);
 
   return (
-    <div className="app-container">
+    <Box sx={{ display: 'flex', minHeight: '100vh', width: '100%' }}>
       <Sidebar
         activeTab={activeTab}
         setActiveTab={setActiveTab}
@@ -18,46 +25,111 @@ export default function App() {
         setIsMobileOpen={setIsMobileOpen}
       />
 
-      <div className="main-wrapper">
-        <header className="mobile-top-bar">
-          <div className="sidebar-brand">
-            <div className="brand-icon">
-              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
-                <line x1="12" y1="1" x2="12" y2="23" />
-                <path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6" />
-              </svg>
-            </div>
-            <span className="brand-title gradient-text" style={{ fontWeight: 700 }}>Value Investing</span>
-          </div>
-          <button
-            className="hamburger-btn"
-            onClick={() => setIsMobileOpen(!isMobileOpen)}
-            aria-label="Abrir menu navigation"
+      <Box
+        component="div"
+        sx={{
+          flexGrow: 1,
+          display: 'flex',
+          flexDirection: 'column',
+          minWidth: 0,
+          overflowX: 'hidden',
+          backgroundColor: '#0a0e17',
+        }}
+      >
+        {/* Mobile Top Bar */}
+        <AppBar
+          position="static"
+          sx={{
+            display: { xs: 'block', md: 'none' },
+            backgroundColor: '#0f141d',
+            borderBottom: '1px solid #43474e',
+            boxShadow: 'none',
+          }}
+        >
+          <Toolbar sx={{ justifyContent: 'space-between' }}>
+            <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.5 }}>
+              <Box
+                sx={{
+                  width: 32,
+                  height: 32,
+                  borderRadius: '50%',
+                  background: 'linear-gradient(135deg, #6366f1, #8b5cf6)',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  color: '#fff',
+                }}
+              >
+                <TrendingUpIcon sx={{ fontSize: 18 }} />
+              </Box>
+              <Typography
+                variant="subtitle1"
+                sx={{
+                  fontWeight: 700,
+                  background: 'linear-gradient(135deg, #6366f1 0%, #8b5cf6 50%, #ec4899 100%)',
+                  WebkitBackgroundClip: 'text',
+                  WebkitTextFillColor: 'transparent',
+                }}
+              >
+                Value Investing
+              </Typography>
+            </Box>
+            <IconButton
+              edge="end"
+              color="inherit"
+              aria-label="menu"
+              onClick={() => setIsMobileOpen(!isMobileOpen)}
+            >
+              <MenuIcon />
+            </IconButton>
+          </Toolbar>
+        </AppBar>
+
+        {/* Application Header */}
+        <Box
+          component="header"
+          sx={{
+            p: { xs: 2.5, md: 4 },
+            pb: 2,
+            borderBottom: '1px solid #43474e',
+            backgroundColor: '#0f141d',
+          }}
+        >
+          <Typography
+            variant="h4"
+            component="h1"
+            sx={{
+              fontWeight: 800,
+              mb: 0.75,
+              fontSize: { xs: '1.5rem', md: '1.875rem' },
+              background: 'linear-gradient(135deg, #6366f1 0%, #8b5cf6 50%, #ec4899 100%)',
+              WebkitBackgroundClip: 'text',
+              WebkitTextFillColor: 'transparent',
+            }}
           >
-            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
-              <line x1="3" y1="12" x2="21" y2="12" />
-              <line x1="3" y1="6" x2="21" y2="6" />
-              <line x1="3" y1="18" x2="21" y2="18" />
-            </svg>
-          </button>
-        </header>
-
-        <header className="app-header">
-          <h1 className="gradient-text" style={{ fontSize: '1.875rem', fontWeight: 800, marginBottom: '6px' }}>
             Value Investing Backtest System
-          </h1>
-          <p style={{ color: 'var(--md-sys-color-on-surface-variant)', fontSize: '0.95rem', maxWidth: '800px' }}>
+          </Typography>
+          <Typography
+            variant="body2"
+            sx={{
+              color: 'text.secondary',
+              maxWidth: 850,
+              lineHeight: 1.6,
+            }}
+          >
             Simulador de acumulação de capital buy-only com aportes periódicos na B3, aplicando filtros de Décio Bazin e Benjamin Graham sobre fundamentos reais ano a ano.
-          </p>
-        </header>
+          </Typography>
+        </Box>
 
-        <main className="main-content">
+        {/* Tab Contents */}
+        <Box component="main" sx={{ flexGrow: 1, p: { xs: 2, md: 4 }, overflowY: 'auto' }}>
           {activeTab === 'assets' && <AssetsTab />}
           {activeTab === 'criteria' && <CriteriaTab />}
           {activeTab === 'indicators' && <IndicatorsTab />}
           {activeTab === 'backtest' && <BacktestTab />}
-        </main>
-      </div>
-    </div>
+        </Box>
+      </Box>
+    </Box>
   );
 }
+
