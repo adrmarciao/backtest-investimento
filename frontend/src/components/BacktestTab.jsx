@@ -1,4 +1,15 @@
 import React, { useState } from 'react';
+import Box from '@mui/material/Box';
+import Card from '@mui/material/Card';
+import CardContent from '@mui/material/CardContent';
+import Typography from '@mui/material/Typography';
+import TextField from '@mui/material/TextField';
+import Button from '@mui/material/Button';
+import Alert from '@mui/material/Alert';
+import AlertTitle from '@mui/material/AlertTitle';
+import CircularProgress from '@mui/material/CircularProgress';
+import Stack from '@mui/material/Stack';
+import RocketLaunchIcon from '@mui/icons-material/RocketLaunch';
 import { executeBacktest } from '../services/api';
 import MetricsPanel from './MetricsPanel';
 import PortfolioChart from './PortfolioChart';
@@ -29,69 +40,103 @@ export default function BacktestTab() {
   };
 
   return (
-    <div>
-      <div className="glass-card" style={{ marginBottom: '24px' }}>
-        <h2 style={{ marginBottom: '16px' }}>Execução de Simulação de Backtest</h2>
-        
-        {error && <div className="badge badge-danger" style={{ marginBottom: '16px', display: 'block' }}>{error}</div>}
+    <Box sx={{ display: 'flex', flexDirection: 'column', gap: 3 }}>
+      <Card sx={{ p: 1 }}>
+        <CardContent>
+          <Typography variant="h5" component="h2" sx={{ fontWeight: 700, mb: 2 }}>
+            Execução de Simulação de Backtest
+          </Typography>
 
-        <form onSubmit={handleRunBacktest} style={{ display: 'flex', alignItems: 'flex-end', gap: '20px', flexWrap: 'wrap' }}>
-          <div className="form-group" style={{ marginBottom: 0 }}>
-            <label>Data Inicial</label>
-            <input
+          {error && (
+            <Alert severity="error" sx={{ mb: 2.5 }}>
+              {error}
+            </Alert>
+          )}
+
+          <Box
+            component="form"
+            onSubmit={handleRunBacktest}
+            sx={{
+              display: 'flex',
+              alignItems: 'flex-end',
+              gap: 2.5,
+              flexWrap: 'wrap',
+            }}
+          >
+            <TextField
+              label="Data Inicial"
               type="date"
-              className="form-control"
               value={inicio}
               onChange={(e) => setInicio(e.target.value)}
+              slotProps={{ inputLabel: { shrink: true } }}
               required
+              size="small"
+              sx={{ minWidth: 180 }}
             />
-          </div>
 
-          <div className="form-group" style={{ marginBottom: 0 }}>
-            <label>Data Final</label>
-            <input
+            <TextField
+              label="Data Final"
               type="date"
-              className="form-control"
               value={fim}
               onChange={(e) => setFim(e.target.value)}
+              slotProps={{ inputLabel: { shrink: true } }}
               required
+              size="small"
+              sx={{ minWidth: 180 }}
             />
-          </div>
 
-          <button type="submit" className="btn btn-primary" disabled={loading} style={{ height: '42px' }}>
-            {loading ? <div className="spinner" /> : '🚀 Iniciar Motor de Backtest'}
-          </button>
-        </form>
-      </div>
+            <Button
+              type="submit"
+              variant="contained"
+              disabled={loading}
+              startIcon={loading ? <CircularProgress size={18} color="inherit" /> : <RocketLaunchIcon />}
+              sx={{ height: 40, px: 3 }}
+            >
+              {loading ? 'Simulando...' : 'Iniciar Motor de Backtest'}
+            </Button>
+          </Box>
+        </CardContent>
+      </Card>
 
       {result && (
-        <div style={{ display: 'flex', flexDirection: 'column', gap: '24px' }}>
+        <Stack spacing={3}>
           {result.anosIgnorados && result.anosIgnorados.length > 0 && (
-            <div className="glass-card" style={{ borderLeft: '4px solid var(--warning)' }}>
-              <h4 style={{ color: 'var(--warning)', marginBottom: '8px' }}>⚠️ Avisos de Anos Ignorados / Inelegíveis</h4>
-              <ul style={{ paddingLeft: '20px', color: 'var(--text-secondary)', fontSize: '0.85rem' }}>
+            <Alert severity="warning">
+              <AlertTitle>Avisos de Anos Ignorados / Inelegíveis</AlertTitle>
+              <ul style={{ margin: 0, paddingLeft: 20 }}>
                 {result.anosIgnorados.map((msg, idx) => (
                   <li key={idx}>{msg}</li>
                 ))}
               </ul>
-            </div>
+            </Alert>
           )}
 
-          <div className="glass-card">
-            <h3 style={{ marginBottom: '16px' }}>Painel de Métricas e Performance</h3>
-            <MetricsPanel result={result} />
-          </div>
+          <Card sx={{ p: 1 }}>
+            <CardContent>
+              <Typography variant="h6" sx={{ fontWeight: 700, mb: 2 }}>
+                Painel de Métricas e Performance
+              </Typography>
+              <MetricsPanel result={result} />
+            </CardContent>
+          </Card>
 
-          <div className="glass-card">
-            <h3 style={{ marginBottom: '16px' }}>Evolução Patrimonial x IBOVESPA (Base 100)</h3>
-            <PortfolioChart data={result.serieTemporal} />
-          </div>
+          <Card sx={{ p: 1 }}>
+            <CardContent>
+              <Typography variant="h6" sx={{ fontWeight: 700, mb: 2 }}>
+                Evolução Patrimonial x IBOVESPA (Base 100)
+              </Typography>
+              <PortfolioChart data={result.serieTemporal} />
+            </CardContent>
+          </Card>
 
-          <div className="glass-card">
-            <PurchasesTable purchases={result.compras} timeSeries={result.serieTemporal} />
-          </div>
-        </div>
+          <Card sx={{ p: 1 }}>
+            <CardContent>
+              <PurchasesTable purchases={result.compras} timeSeries={result.serieTemporal} />
+            </CardContent>
+          </Card>
+        </Stack>
       )}
-    </div>
+    </Box>
   );
 }
+
