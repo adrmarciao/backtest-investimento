@@ -24,6 +24,7 @@ import EditIcon from '@mui/icons-material/Edit';
 import DeleteOutlineIcon from '@mui/icons-material/DeleteOutlined';
 import CheckIcon from '@mui/icons-material/Check';
 import CloseIcon from '@mui/icons-material/Close';
+import AddIcon from '@mui/icons-material/Add';
 import { getAssets, getIndicators, saveIndicators, updateIndicators, deleteIndicators } from '../services/api';
 
 export default function IndicatorsTab() {
@@ -31,15 +32,8 @@ export default function IndicatorsTab() {
   const [selectedTicker, setSelectedTicker] = useState('');
   const [indicatorsList, setIndicatorsList] = useState([]);
 
-  // Form states for new entry
+  // Form state for quick year entry
   const [ano, setAno] = useState(new Date().getFullYear() - 1);
-  const [pl, setPl] = useState('');
-  const [pvp, setPvp] = useState('');
-  const [dividaEbitda, setDividaEbitda] = useState('');
-  const [roe, setRoe] = useState('');
-  const [dpa, setDpa] = useState('');
-  const [lpa, setLpa] = useState('');
-  const [vpa, setVpa] = useState('');
   const [loading, setLoading] = useState(false);
 
   // States for inline editing
@@ -96,36 +90,43 @@ export default function IndicatorsTab() {
     return `R$ ${res.toFixed(2)}`;
   };
 
-  const handleSubmit = async (e) => {
-    e.preventDefault();
+  const handleAddYear = (e) => {
+    if (e) e.preventDefault();
     if (!selectedTicker) return alert('Selecione um ativo');
-    setLoading(true);
-    try {
-      await saveIndicators(selectedTicker, {
-        ticker: selectedTicker,
-        ano: parseInt(ano),
-        pl: parseFloat(pl),
-        pvp: parseFloat(pvp),
-        dividaEbitda: parseFloat(dividaEbitda),
-        roe: parseFloat(roe),
-        dpa: parseFloat(dpa),
-        lpa: parseFloat(lpa),
-        vpa: parseFloat(vpa),
-      });
-      await loadIndicators(selectedTicker);
-      // Reset form
-      setPl('');
-      setPvp('');
-      setDividaEbitda('');
-      setRoe('');
-      setDpa('');
-      setLpa('');
-      setVpa('');
-    } catch (err) {
-      alert('Erro ao salvar indicadores do ano');
-    } finally {
-      setLoading(false);
+    const yearNum = parseInt(ano, 10);
+    if (isNaN(yearNum) || yearNum < 1900 || yearNum > 2100) {
+      return alert('Ano inválido');
     }
+
+    const existing = indicatorsList.find((ind) => ind.ano === yearNum);
+    if (existing) {
+      handleStartEdit(existing);
+      return;
+    }
+
+    const newDraft = {
+      ano: yearNum,
+      pl: null,
+      pvp: null,
+      dividaEbitda: null,
+      roe: null,
+      dpa: null,
+      lpa: null,
+      vpa: null,
+      isDraft: true,
+    };
+
+    setIndicatorsList((prev) => [newDraft, ...prev].sort((a, b) => b.ano - a.ano));
+    setEditingYear(yearNum);
+    setEditForm({
+      pl: '',
+      pvp: '',
+      dividaEbitda: '',
+      roe: '',
+      dpa: '',
+      lpa: '',
+      vpa: '',
+    });
   };
 
   const handleDeleteYear = async (yearToDelete) => {
@@ -152,6 +153,9 @@ export default function IndicatorsTab() {
   };
 
   const handleCancelEdit = () => {
+    if (editingYear !== null) {
+      setIndicatorsList((prev) => prev.filter((ind) => !(ind.ano === editingYear && ind.isDraft)));
+    }
     setEditingYear(null);
     setEditForm({ pl: '', pvp: '', dividaEbitda: '', roe: '', dpa: '', lpa: '', vpa: '' });
   };
@@ -163,25 +167,41 @@ export default function IndicatorsTab() {
     }));
   };
 
+  const parseNum = (val) => {
+    if (val === '' || val === null || val === undefined) return null;
+    const num = parseFloat(val);
+    return isNaN(num) ? null : num;
+  };
+
   const handleSaveEdit = async (year) => {
     if (!selectedTicker) return;
+    setLoading(true);
     try {
       const updatedData = {
         ticker: selectedTicker,
-        ano: parseInt(year),
-        pl: parseFloat(editForm.pl),
-        pvp: parseFloat(editForm.pvp),
-        dividaEbitda: parseFloat(editForm.dividaEbitda),
-        roe: parseFloat(editForm.roe),
-        dpa: parseFloat(editForm.dpa),
-        lpa: parseFloat(editForm.lpa),
-        vpa: parseFloat(editForm.vpa),
+        ano: parseInt(year, 10),
+        pl: parseNum(editForm.pl),
+        pvp: parseNum(editForm.pvp),
+        dividaEbitda: parseNum(editForm.dividaEbitda),
+        roe: parseNum(editForm.roe),
+        dpa: parseNum(editForm.dpa),
+        lpa: parseNum(editForm.lpa),
+        vpa: parseNum(editForm.vpa),
       };
-      await updateIndicators(selectedTicker, year, updatedData);
+
+      const existing = indicatorsList.find((ind) => ind.ano === year);
+      if (existing && existing.isDraft) {
+        await saveIndicators(selectedTicker, updatedData);
+      } else {
+        await updateIndicators(selectedTicker, year, updatedData);
+      }
+
       setEditingYear(null);
       await loadIndicators(selectedTicker);
     } catch (err) {
-      alert('Erro ao atualizar indicadores do ano');
+      alert('Erro ao salvar indicadores do ano');
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -215,139 +235,38 @@ export default function IndicatorsTab() {
           <>
             <Box
               component="form"
-              onSubmit={handleSubmit}
+              onSubmit={handleAddYear}
               sx={{
                 backgroundColor: '#171c26',
-                p: 3,
+                p: 2.5,
                 borderRadius: 3,
                 border: '1px solid #43474e',
                 mb: 4,
+                display: 'flex',
+                alignItems: 'center',
+                gap: 2,
+                flexWrap: 'wrap',
               }}
             >
-              <Typography variant="subtitle1" sx={{ fontWeight: 700, mb: 2 }}>
-                Cadastrar/Editar Ano para {selectedTicker}
+              <Typography variant="subtitle1" sx={{ fontWeight: 700 }}>
+                Adicionar Novo Ano para {selectedTicker}:
               </Typography>
-
-              <Box
-                sx={{
-                  display: 'grid',
-                  gridTemplateColumns: {
-                    xs: 'repeat(2, 1fr)',
-                    sm: 'repeat(4, 1fr)',
-                    md: 'repeat(8, 1fr)',
-                  },
-                  gap: 1.5,
-                  mb: 2,
-                }}
+              <TextField
+                label="Ano"
+                type="number"
+                size="small"
+                value={ano}
+                onChange={(e) => setAno(e.target.value)}
+                sx={{ width: 130 }}
+                required
+              />
+              <Button
+                type="submit"
+                variant="contained"
+                startIcon={<AddIcon />}
               >
-                <TextField
-                  label="Ano"
-                  type="number"
-                  size="small"
-                  value={ano}
-                  onChange={(e) => setAno(e.target.value)}
-                  required
-                />
-                <TextField
-                  label="P/L"
-                  type="number"
-                  inputProps={{ step: '0.01' }}
-                  size="small"
-                  value={pl}
-                  onChange={(e) => setPl(e.target.value)}
-                  placeholder="12.5"
-                  required
-                />
-                <TextField
-                  label="P/VP"
-                  type="number"
-                  inputProps={{ step: '0.01' }}
-                  size="small"
-                  value={pvp}
-                  onChange={(e) => setPvp(e.target.value)}
-                  placeholder="2.1"
-                  required
-                />
-                <TextField
-                  label="Dív/EBITDA"
-                  type="number"
-                  inputProps={{ step: '0.01' }}
-                  size="small"
-                  value={dividaEbitda}
-                  onChange={(e) => setDividaEbitda(e.target.value)}
-                  placeholder="1.4"
-                  required
-                />
-                <TextField
-                  label="ROE (%)"
-                  type="number"
-                  inputProps={{ step: '0.01' }}
-                  size="small"
-                  value={roe}
-                  onChange={(e) => setRoe(e.target.value)}
-                  placeholder="22.0"
-                  required
-                />
-                <TextField
-                  label="DPA (R$)"
-                  type="number"
-                  inputProps={{ step: '0.01' }}
-                  size="small"
-                  value={dpa}
-                  onChange={(e) => setDpa(e.target.value)}
-                  placeholder="1.50"
-                  required
-                />
-                <TextField
-                  label="LPA (R$)"
-                  type="number"
-                  inputProps={{ step: '0.01' }}
-                  size="small"
-                  value={lpa}
-                  onChange={(e) => setLpa(e.target.value)}
-                  placeholder="3.20"
-                  required
-                />
-                <TextField
-                  label="VPA (R$)"
-                  type="number"
-                  inputProps={{ step: '0.01' }}
-                  size="small"
-                  value={vpa}
-                  onChange={(e) => setVpa(e.target.value)}
-                  placeholder="18.00"
-                  required
-                />
-              </Box>
-
-              <Box
-                sx={{
-                  display: 'flex',
-                  alignItems: 'center',
-                  justifyContent: 'space-between',
-                  flexWrap: 'wrap',
-                  gap: 2,
-                }}
-              >
-                <Typography variant="body2" sx={{ color: 'text.secondary' }}>
-                  <strong>Tetos Calculados:</strong> Bazin:{' '}
-                  <span style={{ color: '#10b981', fontWeight: 600 }}>
-                    {calculateBazinPreview(dpa)}
-                  </span>{' '}
-                  | Graham:{' '}
-                  <span style={{ color: '#10b981', fontWeight: 600 }}>
-                    {calculateGrahamPreview(lpa, vpa)}
-                  </span>
-                </Typography>
-                <Button
-                  type="submit"
-                  variant="contained"
-                  disabled={loading}
-                  startIcon={loading ? <CircularProgress size={18} color="inherit" /> : <SaveIcon />}
-                >
-                  {loading ? 'Salvando...' : 'Salvar Indicadores do Ano'}
-                </Button>
-              </Box>
+                Adicionar Ano à Tabela
+              </Button>
             </Box>
 
             <Typography variant="h6" sx={{ fontWeight: 700, mb: 2 }}>
@@ -495,13 +414,13 @@ export default function IndicatorsTab() {
                             </>
                           ) : (
                             <>
-                              <TableCell>{ind.pl}</TableCell>
-                              <TableCell>{ind.pvp}</TableCell>
-                              <TableCell>{ind.dividaEbitda}</TableCell>
-                              <TableCell>{ind.roe}%</TableCell>
-                              <TableCell>R$ {ind.dpa}</TableCell>
-                              <TableCell>R$ {ind.lpa}</TableCell>
-                              <TableCell>R$ {ind.vpa}</TableCell>
+                              <TableCell>{ind.pl ?? '-'}</TableCell>
+                              <TableCell>{ind.pvp ?? '-'}</TableCell>
+                              <TableCell>{ind.dividaEbitda ?? '-'}</TableCell>
+                              <TableCell>{ind.roe != null ? `${ind.roe}%` : '-'}</TableCell>
+                              <TableCell>{ind.dpa != null ? `R$ ${ind.dpa}` : '-'}</TableCell>
+                              <TableCell>{ind.lpa != null ? `R$ ${ind.lpa}` : '-'}</TableCell>
+                              <TableCell>{ind.vpa != null ? `R$ ${ind.vpa}` : '-'}</TableCell>
                               <TableCell>
                                 <Chip
                                   label={calculateBazinPreview(ind.dpa)}
