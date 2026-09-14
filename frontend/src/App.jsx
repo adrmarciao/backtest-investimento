@@ -43,10 +43,10 @@ export default function App() {
         </header>
 
         <header className="app-header">
-          <h1 className="gradient-text" style={{ fontSize: '2rem', marginBottom: '6px' }}>
+          <h1 className="gradient-text" style={{ fontSize: '1.875rem', fontWeight: 800, marginBottom: '6px' }}>
             Value Investing Backtest System
           </h1>
-          <p style={{ color: 'var(--text-secondary)', fontSize: '0.95rem', maxWidth: '800px' }}>
+          <p style={{ color: 'var(--md-sys-color-on-surface-variant)', fontSize: '0.95rem', maxWidth: '800px' }}>
             Simulador de acumulação de capital buy-only com aportes periódicos na B3, aplicando filtros de Décio Bazin e Benjamin Graham sobre fundamentos reais ano a ano.
           </p>
         </header>
@@ -61,4 +61,3 @@ export default function App() {
     </div>
   );
 }
-

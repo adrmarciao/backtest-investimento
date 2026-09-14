@@ -1,16 +1,75 @@
 @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap');
 
 :root {
-  --bg-primary: #0b0f19;
-  --bg-secondary: #111827;
-  --bg-card: rgba(17, 24, 39, 0.75);
-  --bg-glass: rgba(30, 41, 59, 0.4);
-  --border-color: rgba(255, 255, 255, 0.08);
-  --border-glow: rgba(99, 102, 241, 0.3);
+  /* Material Design 3 (Material You) Semantic Color Tokens */
+  --md-sys-color-primary: #a5c8ff;
+  --md-sys-color-on-primary: #00315e;
+  --md-sys-color-primary-container: #004785;
+  --md-sys-color-on-primary-container: #d4e3ff;
 
-  --text-primary: #f8fafc;
-  --text-secondary: #94a3b8;
-  --text-muted: #64748b;
+  --md-sys-color-secondary: #bec6dc;
+  --md-sys-color-on-secondary: #283041;
+  --md-sys-color-secondary-container: #3e4759;
+  --md-sys-color-on-secondary-container: #dae2f9;
+
+  --md-sys-color-tertiary: #ddbce0;
+  --md-sys-color-on-tertiary: #3f2844;
+  --md-sys-color-tertiary-container: #573e5c;
+  --md-sys-color-on-tertiary-container: #fad8fd;
+
+  --md-sys-color-error: #ffb4ab;
+  --md-sys-color-on-error: #690005;
+  --md-sys-color-error-container: #93000a;
+  --md-sys-color-on-error-container: #ffdad6;
+
+  --md-sys-color-background: #0f141d;
+  --md-sys-color-on-background: #e0e2ed;
+
+  --md-sys-color-surface: #0f141d;
+  --md-sys-color-on-surface: #e0e2ed;
+  --md-sys-color-surface-variant: #43474e;
+  --md-sys-color-on-surface-variant: #c3c6cf;
+
+  --md-sys-color-surface-container-lowest: #0a0e17;
+  --md-sys-color-surface-container-low: #171c26;
+  --md-sys-color-surface-container: #1b202a;
+  --md-sys-color-surface-container-high: #262a35;
+  --md-sys-color-surface-container-highest: #313540;
+
+  --md-sys-color-outline: #8d9199;
+  --md-sys-color-outline-variant: #43474e;
+
+  /* Material Design 3 Shape Corner Tokens */
+  --md-sys-shape-corner-none: 0px;
+  --md-sys-shape-corner-extra-small: 4px;
+  --md-sys-shape-corner-small: 8px;
+  --md-sys-shape-corner-medium: 12px;
+  --md-sys-shape-corner-large: 16px;
+  --md-sys-shape-corner-extra-large: 28px;
+  --md-sys-shape-corner-full: 9999px;
+
+  /* Material Design 3 Typography Tokens */
+  --md-sys-typescale-display-large: 700 3.5rem/4rem 'Plus Jakarta Sans', sans-serif;
+  --md-sys-typescale-headline-large: 700 2rem/2.5rem 'Plus Jakarta Sans', sans-serif;
+  --md-sys-typescale-headline-medium: 700 1.5rem/2rem 'Plus Jakarta Sans', sans-serif;
+  --md-sys-typescale-title-large: 600 1.25rem/1.75rem 'Plus Jakarta Sans', sans-serif;
+  --md-sys-typescale-title-medium: 600 1rem/1.5rem 'Plus Jakarta Sans', sans-serif;
+  --md-sys-typescale-body-large: 400 1rem/1.5rem 'Plus Jakarta Sans', sans-serif;
+  --md-sys-typescale-body-medium: 400 0.875rem/1.25rem 'Plus Jakarta Sans', sans-serif;
+  --md-sys-typescale-label-large: 600 0.875rem/1.25rem 'Plus Jakarta Sans', sans-serif;
+  --md-sys-typescale-label-medium: 500 0.75rem/1rem 'Plus Jakarta Sans', sans-serif;
+
+  /* Legacy variable mappings to MD3 tokens */
+  --bg-primary: var(--md-sys-color-background);
+  --bg-secondary: var(--md-sys-color-surface-container-low);
+  --bg-card: var(--md-sys-color-surface-container);
+  --bg-glass: var(--md-sys-color-surface-container-high);
+  --border-color: var(--md-sys-color-outline-variant);
+  --border-glow: var(--md-sys-color-primary);
+
+  --text-primary: var(--md-sys-color-on-surface);
+  --text-secondary: var(--md-sys-color-on-surface-variant);
+  --text-muted: var(--md-sys-color-outline);
 
   --accent-primary: #6366f1;
   --accent-secondary: #8b5cf6;
@@ -24,11 +83,11 @@
   --danger: #ef4444;
   --danger-bg: rgba(239, 68, 68, 0.15);
 
-  --radius-sm: 8px;
-  --radius-md: 12px;
-  --radius-lg: 20px;
+  --radius-sm: var(--md-sys-shape-corner-small);
+  --radius-md: var(--md-sys-shape-corner-medium);
+  --radius-lg: var(--md-sys-shape-corner-large);
   --shadow-glow: 0 0 25px rgba(99, 102, 241, 0.2);
-  --shadow-card: 0 10px 30px -10px rgba(0, 0, 0, 0.5);
+  --shadow-card: 0 4px 20px rgba(0, 0, 0, 0.4);
 }
 
 * {
@@ -39,13 +98,13 @@
 
 body {
   font-family: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, sans-serif;
-  background-color: var(--bg-primary);
-  color: var(--text-primary);
+  background-color: var(--md-sys-color-background);
+  color: var(--md-sys-color-on-background);
   min-height: 100vh;
   line-height: 1.5;
   background-image: 
-    radial-gradient(at 0% 0%, rgba(99, 102, 241, 0.12) 0px, transparent 50%),
-    radial-gradient(at 100% 100%, rgba(139, 92, 246, 0.12) 0px, transparent 50%);
+    radial-gradient(at 0% 0%, rgba(165, 200, 255, 0.06) 0px, transparent 50%),
+    radial-gradient(at 100% 100%, rgba(221, 188, 224, 0.06) 0px, transparent 50%);
   background-attachment: fixed;
 }
 
@@ -64,12 +123,13 @@ body {
   flex-direction: column;
   min-width: 0;
   overflow-x: hidden;
+  background-color: var(--md-sys-color-surface-container-lowest);
 }
 
 .app-header {
   padding: 24px 32px 16px 32px;
-  border-bottom: 1px solid var(--border-color);
-  background: rgba(11, 15, 25, 0.4);
+  border-bottom: 1px solid var(--md-sys-color-outline-variant);
+  background: var(--md-sys-color-surface);
 }
 
 .main-content {
@@ -88,26 +148,24 @@ body {
   }
 }
 
-
-/* Glassmorphism Card */
-.glass-card {
-  background: var(--bg-card);
-  backdrop-filter: blur(16px);
-  -webkit-backdrop-filter: blur(16px);
-  border: 1px solid var(--border-color);
-  border-radius: var(--radius-lg);
+/* Material Design 3 Tonal Surface Cards */
+.glass-card, .md3-card {
+  background: var(--md-sys-color-surface-container);
+  border: 1px solid var(--md-sys-color-outline-variant);
+  border-radius: var(--md-sys-shape-corner-large);
   padding: 24px;
-  box-shadow: var(--shadow-card);
-  transition: transform 0.2s ease, border-color 0.2s ease;
+  box-shadow: 0 2px 12px rgba(0, 0, 0, 0.3);
+  transition: transform 0.2s ease, border-color 0.2s ease, background-color 0.2s ease;
 }
 
-.glass-card:hover {
-  border-color: rgba(255, 255, 255, 0.15);
+.glass-card:hover, .md3-card:hover {
+  border-color: var(--md-sys-color-outline);
+  background: var(--md-sys-color-surface-container-high);
 }
 
 /* Typography & Headings */
 h1, h2, h3, h4 {
-  color: var(--text-primary);
+  color: var(--md-sys-color-on-surface);
   font-weight: 700;
   letter-spacing: -0.02em;
 }
@@ -118,14 +176,14 @@ h1, h2, h3, h4 {
   -webkit-text-fill-color: transparent;
 }
 
-/* Buttons */
-.btn {
+/* Material Design 3 Buttons */
+.btn, .md3-btn {
   display: inline-flex;
   align-items: center;
   justify-content: center;
   gap: 8px;
-  padding: 10px 20px;
-  border-radius: var(--radius-md);
+  padding: 10px 24px;
+  border-radius: var(--md-sys-shape-corner-full);
   font-weight: 600;
   font-size: 0.95rem;
   cursor: pointer;
@@ -136,7 +194,7 @@ h1, h2, h3, h4 {
 
 .btn-primary {
   background: var(--accent-gradient);
-  color: #fff;
+  color: #ffffff;
   box-shadow: 0 4px 15px rgba(99, 102, 241, 0.35);
 }
 
@@ -146,24 +204,24 @@ h1, h2, h3, h4 {
 }
 
 .btn-secondary {
-  background: rgba(255, 255, 255, 0.06);
-  color: var(--text-primary);
-  border: 1px solid var(--border-color);
+  background: var(--md-sys-color-surface-container-high);
+  color: var(--md-sys-color-on-surface);
+  border: 1px solid var(--md-sys-color-outline-variant);
 }
 
 .btn-secondary:hover:not(:disabled) {
-  background: rgba(255, 255, 255, 0.12);
-  border-color: rgba(255, 255, 255, 0.2);
+  background: var(--md-sys-color-surface-container-highest);
+  border-color: var(--md-sys-color-outline);
 }
 
 .btn-danger {
-  background: var(--danger-bg);
-  color: var(--danger);
+  background: var(--md-sys-color-error-container);
+  color: var(--md-sys-color-on-error-container);
   border: 1px solid rgba(239, 68, 68, 0.3);
 }
 
 .btn-danger:hover:not(:disabled) {
-  background: rgba(239, 68, 68, 0.25);
+  background: var(--danger-bg);
 }
 
 .btn:disabled {
@@ -171,7 +229,7 @@ h1, h2, h3, h4 {
   cursor: not-allowed;
 }
 
-/* Form Inputs */
+/* Form Inputs - MD3 Outlined Container Style */
 .form-group {
   display: flex;
   flex-direction: column;
@@ -182,17 +240,17 @@ h1, h2, h3, h4 {
 .form-group label {
   font-size: 0.85rem;
   font-weight: 600;
-  color: var(--text-secondary);
+  color: var(--md-sys-color-on-surface-variant);
   text-transform: uppercase;
   letter-spacing: 0.05em;
 }
 
 .form-control {
-  background: rgba(15, 23, 42, 0.6);
-  border: 1px solid var(--border-color);
-  border-radius: var(--radius-sm);
+  background: var(--md-sys-color-surface-container-low);
+  border: 1px solid var(--md-sys-color-outline-variant);
+  border-radius: var(--md-sys-shape-corner-small);
   padding: 10px 14px;
-  color: var(--text-primary);
+  color: var(--md-sys-color-on-surface);
   font-family: inherit;
   font-size: 0.95rem;
   transition: all 0.2s ease;
@@ -200,15 +258,17 @@ h1, h2, h3, h4 {
 
 .form-control:focus {
   outline: none;
-  border-color: var(--accent-primary);
-  box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.2);
+  border-color: var(--md-sys-color-primary);
+  box-shadow: 0 0 0 3px rgba(165, 200, 255, 0.2);
+  background: var(--md-sys-color-surface-container);
 }
 
-/* Tables */
+/* Tables with MD3 Container Styling */
 .custom-table-container {
   overflow-x: auto;
-  border-radius: var(--radius-md);
-  border: 1px solid var(--border-color);
+  border-radius: var(--md-sys-shape-corner-medium);
+  border: 1px solid var(--md-sys-color-outline-variant);
+  background: var(--md-sys-color-surface-container);
 }
 
 .custom-table {
@@ -219,31 +279,31 @@ h1, h2, h3, h4 {
 }
 
 .custom-table th {
-  background: rgba(15, 23, 42, 0.8);
+  background: var(--md-sys-color-surface-container-high);
   padding: 12px 16px;
-  color: var(--text-secondary);
+  color: var(--md-sys-color-on-surface-variant);
   font-weight: 600;
   text-transform: uppercase;
   font-size: 0.75rem;
   letter-spacing: 0.05em;
-  border-bottom: 1px solid var(--border-color);
+  border-bottom: 1px solid var(--md-sys-color-outline-variant);
 }
 
 .custom-table td {
   padding: 12px 16px;
   border-bottom: 1px solid rgba(255, 255, 255, 0.04);
-  color: var(--text-primary);
+  color: var(--md-sys-color-on-surface);
 }
 
 .custom-table tr:hover td {
-  background: rgba(255, 255, 255, 0.02);
+  background: var(--md-sys-color-surface-container-highest);
 }
 
 /* Badges & Metric Cards */
 .badge {
   display: inline-block;
   padding: 4px 8px;
-  border-radius: 6px;
+  border-radius: var(--md-sys-shape-corner-extra-small);
   font-size: 0.75rem;
   font-weight: 600;
   text-transform: uppercase;
@@ -261,24 +321,24 @@ h1, h2, h3, h4 {
 }
 
 .metric-card {
-  background: var(--bg-glass);
-  border: 1px solid var(--border-color);
-  border-radius: var(--radius-md);
+  background: var(--md-sys-color-surface-container-high);
+  border: 1px solid var(--md-sys-color-outline-variant);
+  border-radius: var(--md-sys-shape-corner-medium);
   padding: 16px;
   display: flex;
   flex-direction: column;
   gap: 4px;
-  transition: transform 0.2s ease;
+  transition: transform 0.2s ease, border-color 0.2s ease;
 }
 
 .metric-card:hover {
   transform: translateY(-2px);
-  border-color: var(--border-glow);
+  border-color: var(--md-sys-color-primary);
 }
 
 .metric-card .title {
   font-size: 0.8rem;
-  color: var(--text-secondary);
+  color: var(--md-sys-color-on-surface-variant);
   font-weight: 600;
   text-transform: uppercase;
 }
@@ -287,18 +347,19 @@ h1, h2, h3, h4 {
   font-size: 1.5rem;
   font-weight: 800;
   font-family: 'JetBrains Mono', monospace;
+  color: var(--md-sys-color-on-surface);
 }
 
 .metric-card .subtitle {
   font-size: 0.75rem;
-  color: var(--text-muted);
+  color: var(--md-sys-color-outline);
 }
 
-/* Tabs Navigation */
+/* Tabs Navigation - MD3 Style */
 .tabs-nav {
   display: flex;
   gap: 8px;
-  border-bottom: 1px solid var(--border-color);
+  border-bottom: 1px solid var(--md-sys-color-outline-variant);
   margin-bottom: 24px;
   padding-bottom: 8px;
 }
@@ -306,22 +367,22 @@ h1, h2, h3, h4 {
 .tab-button {
   background: transparent;
   border: none;
-  color: var(--text-secondary);
+  color: var(--md-sys-color-on-surface-variant);
   font-family: inherit;
   font-weight: 600;
-  padding: 10px 18px;
-  border-radius: var(--radius-md);
+  padding: 10px 20px;
+  border-radius: var(--md-sys-shape-corner-full);
   cursor: pointer;
   transition: all 0.2s ease;
 }
 
 .tab-button:hover {
-  color: var(--text-primary);
-  background: rgba(255, 255, 255, 0.05);
+  color: var(--md-sys-color-on-surface);
+  background: var(--md-sys-color-surface-container-high);
 }
 
 .tab-button.active {
-  color: #fff;
+  color: #ffffff;
   background: var(--accent-gradient);
   box-shadow: 0 4px 12px rgba(99, 102, 241, 0.3);
 }
