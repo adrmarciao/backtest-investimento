@@ -1,10 +1,4 @@
-# app-navigation Specification
-
-## Purpose
-
-Provides a centralized collapsible left sidebar navigation component for the Value Investing Backtest application to switch between application sections and support future module expansion.
-
-## Requirements
+## MODIFIED Requirements
 
 ### Requirement: Sidebar Navigation Layout
 The frontend application SHALL display a left sidebar navigation panel that follows Material Design 3 Navigation Drawer / Rail specifications, allowing users to switch between active views and toggle between expanded (~240px Navigation Drawer) and collapsed (~80px Navigation Rail) layout states.
@@ -16,13 +10,6 @@ The frontend application SHALL display a left sidebar navigation panel that foll
 #### Scenario: Collapsing and Expanding Sidebar
 - **WHEN** the user clicks the sidebar collapse toggle button
 - **THEN** the sidebar SHALL toggle between Navigation Drawer expanded state (showing icons and text labels) and Navigation Rail collapsed state (showing icons with labels centered below or tooltips), preserving space for the main content area.
-
-### Requirement: Grouped Navigation Structure
-The sidebar SHALL organize navigation items into categorized groups ("Simulador & Estratégia", "Dados de Mercado") with icons and distinct group headers.
-
-#### Scenario: Display Categorized Navigation Groups
-- **WHEN** the sidebar is rendered in expanded state
-- **THEN** navigation items SHALL be visually grouped under category headings with corresponding icons for each navigation item.
 
 ### Requirement: Responsive Drawer Navigation
 The application SHALL adapt sidebar navigation for smaller screen widths (mobile/tablet) by rendering a collapsible overlay drawer menu or MD3 Navigation Bar accessible via a hamburger icon.

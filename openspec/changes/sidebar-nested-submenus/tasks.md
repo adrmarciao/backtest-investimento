@@ -12,5 +12,5 @@
 
 ## 3. Verification
 
-- [ ] 3.1 Verify accordion collapse/expand behavior and single-open menu constraint in browser
-- [ ] 3.2 Verify submenus in both expanded and collapsed (flyout popover) sidebar states
+- [x] 3.1 Verify accordion collapse/expand behavior and single-open menu constraint in browser
+- [x] 3.2 Verify submenus in both expanded and collapsed (flyout popover) sidebar states
