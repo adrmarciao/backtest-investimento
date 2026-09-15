@@ -11,9 +11,10 @@ import AssetsTab from './components/AssetsTab';
 import CriteriaTab from './components/CriteriaTab';
 import IndicatorsTab from './components/IndicatorsTab';
 import BacktestTab from './components/BacktestTab';
+import PurchasePlanTab from './components/PurchasePlanTab';
 
 export default function App() {
-  const [activeTab, setActiveTab] = useState('backtest');
+  const [activeTab, setActiveTab] = useState('purchase-plan');
   const [isMobileOpen, setIsMobileOpen] = useState(false);
 
   return (
@@ -107,7 +108,7 @@ export default function App() {
               WebkitTextFillColor: 'transparent',
             }}
           >
-            Value Investing Backtest System
+            Value Investing & Alocação Inteligente
           </Typography>
           <Typography
             variant="body2"
@@ -117,12 +118,13 @@ export default function App() {
               lineHeight: 1.6,
             }}
           >
-            Simulador de acumulação de capital buy-only com aportes periódicos na B3, aplicando filtros de Décio Bazin e Benjamin Graham sobre fundamentos reais ano a ano.
+            Plano operacional de compras periódicas e simulador de acumulação de capital buy-only na B3, com margens de segurança de Décio Bazin e Benjamin Graham.
           </Typography>
         </Box>
 
         {/* Tab Contents */}
         <Box component="main" sx={{ flexGrow: 1, p: { xs: 2, md: 4 }, overflowY: 'auto' }}>
+          {activeTab === 'purchase-plan' && <PurchasePlanTab />}
           {activeTab === 'assets' && <AssetsTab />}
           {activeTab === 'criteria' && <CriteriaTab />}
           {activeTab === 'indicators' && <IndicatorsTab />}
@@ -132,4 +134,3 @@ export default function App() {
     </Box>
   );
 }
-

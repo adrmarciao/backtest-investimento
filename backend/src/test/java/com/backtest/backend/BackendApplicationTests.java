@@ -24,8 +24,17 @@ class BackendApplicationTests {
     @MockBean
     private PriceFetcherGatewayPort priceFetcherGatewayPort;
 
-	@Test
-	void contextLoads() {
-	}
+    @MockBean
+    private PurchasePlanConfigRepositoryPort purchasePlanConfigRepositoryPort;
+    @MockBean
+    private PurchasePlanAssetRepositoryPort purchasePlanAssetRepositoryPort;
+    @MockBean
+    private MarketQuoteGatewayPort marketQuoteGatewayPort;
+    @MockBean
+    private FundamentalDataGatewayPort fundamentalDataGatewayPort;
+
+    @Test
+    void contextLoads() {
+    }
 
 }
