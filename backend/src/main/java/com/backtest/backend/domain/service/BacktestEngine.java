@@ -13,30 +13,33 @@ public class BacktestEngine {
      * Avalia se um ano é elegível de acordo com os critérios fixos (Fase 1).
      */
     public boolean isYearEligible(AnnualIndicators indicators, FixedCriteria criteria) {
-        if (indicators == null || criteria == null) {
+        if (criteria == null) {
+            return true;
+        }
+        if (indicators == null) {
             return false;
         }
 
-        if (criteria.getPlMax() != null) {
-            if (indicators.getPl() == null || indicators.getPl().compareTo(criteria.getPlMax()) > 0) {
+        if (criteria.getPlMax() != null && indicators.getPl() != null) {
+            if (indicators.getPl().compareTo(criteria.getPlMax()) > 0) {
                 return false;
             }
         }
 
-        if (criteria.getPvpMax() != null) {
-            if (indicators.getPvp() == null || indicators.getPvp().compareTo(criteria.getPvpMax()) > 0) {
+        if (criteria.getPvpMax() != null && indicators.getPvp() != null) {
+            if (indicators.getPvp().compareTo(criteria.getPvpMax()) > 0) {
                 return false;
             }
         }
 
-        if (criteria.getDividaEbitdaMax() != null) {
-            if (indicators.getDividaEbitda() == null || indicators.getDividaEbitda().compareTo(criteria.getDividaEbitdaMax()) > 0) {
+        if (criteria.getDividaEbitdaMax() != null && indicators.getDividaEbitda() != null) {
+            if (indicators.getDividaEbitda().compareTo(criteria.getDividaEbitdaMax()) > 0) {
                 return false;
             }
         }
 
-        if (criteria.getRoeMin() != null) {
-            if (indicators.getRoe() == null || indicators.getRoe().compareTo(criteria.getRoeMin()) < 0) {
+        if (criteria.getRoeMin() != null && indicators.getRoe() != null) {
+            if (indicators.getRoe().compareTo(criteria.getRoeMin()) < 0) {
                 return false;
             }
         }
@@ -122,17 +125,16 @@ public class BacktestEngine {
             BigDecimal tetoBazin = PriceCeilingCalculator.calculateBazin(annualInd.getDpa());
             BigDecimal tetoGraham = PriceCeilingCalculator.calculateGraham(annualInd.getLpa(), annualInd.getVpa());
 
-            if (tetoBazin == null || tetoGraham == null) {
-                continue;
-            }
-
             BigDecimal currentPrice = pricePoint.getPrecoFechamento();
             if (currentPrice == null || currentPrice.compareTo(BigDecimal.ZERO) <= 0) {
                 continue;
             }
 
-            // A compra ocorre se preço <= tetoBazin E preço <= tetoGraham
-            if (currentPrice.compareTo(tetoBazin) <= 0 && currentPrice.compareTo(tetoGraham) <= 0) {
+            boolean bazinOk = (tetoBazin == null) || (currentPrice.compareTo(tetoBazin) <= 0);
+            boolean grahamOk = (tetoGraham == null) || (currentPrice.compareTo(tetoGraham) <= 0);
+
+            // A compra ocorre se preço respeitar os tetos presentes
+            if (bazinOk && grahamOk) {
                 // Compra regular via aporte
                 BigDecimal aporte = asset.getValorAporte();
                 if (aporte != null && aporte.compareTo(BigDecimal.ZERO) > 0) {

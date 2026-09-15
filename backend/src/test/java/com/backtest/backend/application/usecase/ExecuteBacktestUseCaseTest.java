@@ -72,4 +72,28 @@ class ExecuteBacktestUseCaseTest {
         // Normalization base 100: (1320 / 1000) * 100 = 132.00
         assertEquals(new BigDecimal("132.00"), p2.getPatrimonioNormalizado());
     }
+
+    @Test
+    void executeBacktest_shouldFilterAssetsByProvidedTickers() {
+        com.backtest.backend.domain.port.out.AssetRepositoryPort assetRepo = org.mockito.Mockito.mock(com.backtest.backend.domain.port.out.AssetRepositoryPort.class);
+        com.backtest.backend.domain.port.out.FixedCriteriaRepositoryPort criteriaRepo = org.mockito.Mockito.mock(com.backtest.backend.domain.port.out.FixedCriteriaRepositoryPort.class);
+        com.backtest.backend.domain.port.out.AnnualIndicatorsRepositoryPort indicatorsRepo = org.mockito.Mockito.mock(com.backtest.backend.domain.port.out.AnnualIndicatorsRepositoryPort.class);
+        com.backtest.backend.domain.port.out.BacktestResultRepositoryPort resultRepo = org.mockito.Mockito.mock(com.backtest.backend.domain.port.out.BacktestResultRepositoryPort.class);
+        com.backtest.backend.domain.port.out.PriceFetcherGatewayPort priceGateway = org.mockito.Mockito.mock(com.backtest.backend.domain.port.out.PriceFetcherGatewayPort.class);
+
+        com.backtest.backend.domain.entity.Asset petr4 = new com.backtest.backend.domain.entity.Asset("PETR4", new BigDecimal("1000"), com.backtest.backend.domain.entity.Periodicity.MENSAL);
+        com.backtest.backend.domain.entity.Asset vale3 = new com.backtest.backend.domain.entity.Asset("VALE3", new BigDecimal("1000"), com.backtest.backend.domain.entity.Periodicity.MENSAL);
+
+        org.mockito.Mockito.when(assetRepo.findAll()).thenReturn(List.of(petr4, vale3));
+        org.mockito.Mockito.when(criteriaRepo.find()).thenReturn(java.util.Optional.of(new com.backtest.backend.domain.entity.FixedCriteria()));
+        org.mockito.Mockito.when(resultRepo.save(org.mockito.Mockito.any())).thenAnswer(invocation -> invocation.getArgument(0));
+
+        ExecuteBacktestUseCase useCase = new ExecuteBacktestUseCase(assetRepo, criteriaRepo, indicatorsRepo, resultRepo, priceGateway);
+
+        com.backtest.backend.domain.entity.BacktestResult result = useCase.executeBacktest(LocalDate.of(2023, 1, 1), LocalDate.of(2023, 12, 31), List.of("PETR4"));
+
+        org.mockito.Mockito.verify(indicatorsRepo, org.mockito.Mockito.times(1)).findByTicker("PETR4");
+        org.mockito.Mockito.verify(indicatorsRepo, org.mockito.Mockito.never()).findByTicker("VALE3");
+        org.junit.jupiter.api.Assertions.assertNotNull(result);
+    }
 }

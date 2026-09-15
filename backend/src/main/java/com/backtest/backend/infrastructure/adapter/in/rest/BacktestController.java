@@ -29,6 +29,8 @@ public class BacktestController {
         @DateTimeFormat(iso = DateTimeFormat.ISO.DATE)
         private LocalDate fim;
 
+        private List<String> tickers;
+
         public LocalDate getInicio() {
             return inicio;
         }
@@ -44,6 +46,14 @@ public class BacktestController {
         public void setFim(LocalDate fim) {
             this.fim = fim;
         }
+
+        public List<String> getTickers() {
+            return tickers;
+        }
+
+        public void setTickers(List<String> tickers) {
+            this.tickers = tickers;
+        }
     }
 
     @PostMapping
@@ -51,7 +61,7 @@ public class BacktestController {
         try {
             LocalDate start = request.getInicio() != null ? request.getInicio() : LocalDate.now().minusYears(5);
             LocalDate end = request.getFim() != null ? request.getFim() : LocalDate.now();
-            BacktestResult result = executeBacktestPort.executeBacktest(start, end);
+            BacktestResult result = executeBacktestPort.executeBacktest(start, end, request.getTickers());
             return ResponseEntity.ok(result);
         } catch (IllegalArgumentException | IllegalStateException e) {
             return ResponseEntity.badRequest().body(e.getMessage());
