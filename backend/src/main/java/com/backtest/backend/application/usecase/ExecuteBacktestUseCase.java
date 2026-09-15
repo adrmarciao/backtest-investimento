@@ -44,12 +44,23 @@ public class ExecuteBacktestUseCase implements ExecuteBacktestPort {
     }
 
     @Override
-    public BacktestResult executeBacktest(LocalDate start, LocalDate end) {
+    public BacktestResult executeBacktest(LocalDate start, LocalDate end, List<String> tickers) {
         if (start == null || end == null || start.isAfter(end)) {
             throw new IllegalArgumentException("Período do backtest inválido");
         }
 
         List<Asset> assets = assetRepositoryPort.findAll();
+        if (tickers != null && !tickers.isEmpty()) {
+            Set<String> requestedTickers = tickers.stream()
+                    .filter(Objects::nonNull)
+                    .map(String::trim)
+                    .map(String::toUpperCase)
+                    .collect(Collectors.toSet());
+            assets = assets.stream()
+                    .filter(asset -> asset.getTicker() != null && requestedTickers.contains(asset.getTicker().trim().toUpperCase()))
+                    .collect(Collectors.toList());
+        }
+
         if (assets.isEmpty()) {
             throw new IllegalStateException("Nenhum ativo cadastrado para realizar o backtest");
         }

@@ -19,7 +19,7 @@ export const saveIndicators = (ticker, indicators) => api.post(`/assets/${ticker
 export const updateIndicators = (ticker, year, indicators) => api.put(`/assets/${ticker}/indicators/${year}`, indicators);
 export const deleteIndicators = (ticker, year) => api.delete(`/assets/${ticker}/indicators/${year}`);
 
-export const executeBacktest = (inicio, fim) => api.post('/backtest', { inicio, fim });
+export const executeBacktest = (inicio, fim, tickers) => api.post('/backtest', { inicio, fim, tickers });
 export const getBacktestResults = () => api.get('/backtest');
 export const getBacktestResultById = (id) => api.get(`/backtest/${id}`);
 

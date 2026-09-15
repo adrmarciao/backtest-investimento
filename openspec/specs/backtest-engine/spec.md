@@ -5,7 +5,11 @@ Motor de backtest buy-only que processa períodos semanais ou mensais, verifica 
 ## Requirements
 
 ### Requirement: Executar simulação de backtest buy-only
-O sistema SHALL executar uma simulação de backtest para cada ativo cadastrado, processando cada período (semanal ou mensal) dentro do intervalo de anos com indicadores cadastrados. A simulação é buy-only (sem venda).
+O sistema SHALL executar uma simulação de backtest para os ativos selecionados (ou todos os ativos cadastrados se nenhuma restrição for especificada), processando cada período (semanal ou mensal) dentro do intervalo de anos com indicadores cadastrados. A simulação é buy-only (sem venda).
+
+#### Scenario: Simulação bem-sucedida com ativos específicos selecionados
+- **WHEN** o usuário executa o backtest informando um subconjunto de tickers cadastrados
+- **THEN** o sistema SHALL processar as compras, reinvestimentos de dividendos, métricas de desempenho e série temporal considerando exclusivamente os ativos da lista selecionada
 
 #### Scenario: Simulação bem-sucedida com compras realizadas
 - **WHEN** o usuário executa o backtest com ativos, critérios e indicadores anuais cadastrados
@@ -18,6 +22,22 @@ O sistema SHALL executar uma simulação de backtest para cada ativo cadastrado,
 #### Scenario: Ativo sem indicadores para algum ano
 - **WHEN** há anos sem indicadores cadastrados dentro do intervalo de simulação
 - **THEN** o sistema SHALL pular esses anos e reportar no resultado quais anos foram ignorados por falta de dados
+
+### Requirement: Seleção de tickers para execução do backtest
+A interface do motor de backtest SHALL permitir a seleção individual e em lote dos tickers cadastrados que farão parte da simulação.
+
+#### Scenario: Pré-seleção automática de todos os ativos cadastrados
+- **WHEN** a tela do motor de backtest é carregada
+- **THEN** o sistema SHALL obter os ativos cadastrados e pré-selecionar todos os tickers por padrão no componente de seleção
+
+#### Scenario: Seleção rápida (Selecionar Todos / Limpar Seleção)
+- **WHEN** o usuário clica em "Selecionar Todos" ou "Limpar Seleção"
+- **THEN** o sistema SHALL marcar ou desmarcar instantaneamente todos os tickers disponíveis na lista de seleção
+
+#### Scenario: Bloqueio de execução sem tickers selecionados
+- **WHEN** o usuário desmarca todos os tickers da lista
+- **THEN** o sistema SHALL desabilitar o botão de execução do motor de backtest e apresentar mensagem orientando a seleção de pelo menos 1 ativo
+
 
 ### Requirement: Verificar critérios fixos contra fundamentos anuais (Fase 1)
 O sistema SHALL, para cada ano com indicadores cadastrados, verificar se os 4 critérios fixos são satisfeitos: P/L real ≤ P/L máx, P/VP real ≤ P/VP máx, Dívida/EBITDA real ≤ Dívida/EBITDA máx, ROE real ≥ ROE mín.

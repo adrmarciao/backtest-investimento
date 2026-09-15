@@ -185,5 +185,61 @@ class BacktestEngineTest {
         assertEquals(new BigDecimal("0.00"), result.getTotalDividendosReinvestidos());
         assertEquals(new BigDecimal("50.00"), result.getSaldoCaixaDividendos());
     }
+
+    @Test
+    void testYearEligible_NullIndicatorValues_IgnoredAndPasses() {
+        // BBSE3 / Seguradoras: Divida/EBITDA is null
+        AnnualIndicators indicators = new AnnualIndicators(
+                "BBSE3", 2023,
+                new BigDecimal("11.5"), // PL <= 20
+                new BigDecimal("4.2"),  // PVP <= 5
+                null,                   // Divida/EBITDA null -> Ignored!
+                new BigDecimal("75.0"), // ROE >= 15
+                new BigDecimal("2.10"), // DPA -> Bazin = 35.00
+                null,                   // LPA null -> Graham null
+                null                    // VPA null
+        );
+
+        assertTrue(engine.isYearEligible(indicators, criteria));
+    }
+
+    @Test
+    void testProcessAssetPurchases_PartialIndicatorsRegisteredYear_ExecutesPurchaseIfPriceBelowBazin() {
+        AnnualIndicators indBBSE3 = new AnnualIndicators(
+                "BBSE3", 2023,
+                new BigDecimal("11.5"),
+                new BigDecimal("4.2"),
+                null,                   // Divida/EBITDA null
+                new BigDecimal("75.0"),
+                new BigDecimal("2.10"), // Bazin = 35.00
+                null,                   // LPA null
+                null                    // VPA null (Graham ignored)
+        );
+
+        List<HistoricalPrice> prices = List.of(
+                new HistoricalPrice(LocalDate.of(2023, 1, 15), new BigDecimal("30.00")) // 30 <= 35 -> BUY
+        );
+
+        Set<String> anosIgnorados = new HashSet<>();
+        List<Purchase> purchases = engine.processAssetPurchases(asset, criteria, List.of(indBBSE3), prices, anosIgnorados);
+
+        assertEquals(1, purchases.size());
+        assertEquals(new BigDecimal("30.00"), purchases.get(0).getPreco());
+    }
+
+    @Test
+    void testProcessAssetPurchases_UnregisteredYear_NoPurchasesExecuted() {
+        // Year 2024 has NO indicators registered
+        List<HistoricalPrice> prices = List.of(
+                new HistoricalPrice(LocalDate.of(2024, 1, 15), new BigDecimal("10.00"))
+        );
+
+        Set<String> anosIgnorados = new HashSet<>();
+        List<Purchase> purchases = engine.processAssetPurchases(asset, criteria, Collections.emptyList(), prices, anosIgnorados);
+
+        assertTrue(purchases.isEmpty());
+        assertTrue(anosIgnorados.contains("WEGE3 - 2024 (Sem dados fundamentalistas)"));
+    }
 }
+
 
