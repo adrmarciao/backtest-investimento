@@ -18,6 +18,7 @@ import PlayCircleOutlineIcon from '@mui/icons-material/PlayCircleOutlined';
 import TuneIcon from '@mui/icons-material/Tune';
 import AssessmentIcon from '@mui/icons-material/Assessment';
 import AddCircleOutlineIcon from '@mui/icons-material/AddCircleOutlined';
+import AccountBalanceWalletOutlinedIcon from '@mui/icons-material/AccountBalanceWalletOutlined';
 import FiberManualRecordIcon from '@mui/icons-material/FiberManualRecord';
 
 const EXPANDED_WIDTH = 260;
@@ -38,6 +39,17 @@ export default function Sidebar({ activeTab, setActiveTab, isMobileOpen, setIsMo
   };
 
   const navCategories = [
+    {
+      id: 'operations',
+      title: 'Alocação & Operações',
+      items: [
+        {
+          id: 'purchase-plan',
+          label: 'Plano de Compras',
+          icon: <AccountBalanceWalletOutlinedIcon fontSize="small" />,
+        },
+      ],
+    },
     {
       id: 'simulation',
       title: 'Simulador & Estratégia',
@@ -74,7 +86,7 @@ export default function Sidebar({ activeTab, setActiveTab, isMobileOpen, setIsMo
 
   const getParentCategoryId = (tabId) => {
     const category = navCategories.find(cat => cat.items.some(item => item.id === tabId));
-    return category ? category.id : 'simulation';
+    return category ? category.id : 'operations';
   };
 
   const [openMenuId, setOpenMenuId] = useState(() => getParentCategoryId(activeTab));
@@ -149,7 +161,7 @@ export default function Sidebar({ activeTab, setActiveTab, isMobileOpen, setIsMo
                 Value Investing
               </Typography>
               <Typography variant="caption" sx={{ color: 'text.secondary', display: 'block', mt: -0.5 }}>
-                Backtest Engine
+                Backtest & Alocação
               </Typography>
             </Box>
           )}
@@ -226,7 +238,7 @@ export default function Sidebar({ activeTab, setActiveTab, isMobileOpen, setIsMo
                                 minWidth: 0,
                                 mr: 'auto',
                                 ml: 'auto',
-                                justifyContent: 'center',
+                                justifyCenter: 'center',
                                 color: 'inherit',
                               }}
                             >
@@ -339,5 +351,3 @@ export default function Sidebar({ activeTab, setActiveTab, isMobileOpen, setIsMo
     </>
   );
 }
-
-

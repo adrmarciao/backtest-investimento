@@ -28,6 +28,9 @@ services:
     container_name: backtest-frontend
     ports:
       - "5173:5173"
+    volumes:
+      - ./frontend:/app
+      - /app/node_modules
     environment:
       - VITE_API_TARGET=http://backend:8080
     depends_on:
