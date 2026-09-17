@@ -2,6 +2,7 @@ package com.backtest.backend.infrastructure.adapter.out.gateway;
 
 import com.backtest.backend.domain.entity.DividendPayment;
 import com.backtest.backend.domain.entity.HistoricalPrice;
+import com.backtest.backend.domain.entity.MarketQuoteDetails;
 import com.backtest.backend.domain.entity.Periodicity;
 import com.fasterxml.jackson.databind.JsonNode;
 import org.springframework.stereotype.Component;
@@ -28,6 +29,66 @@ public class YahooFinanceClient {
                 .defaultHeader("User-Agent", "Mozilla/5.0 (Windows NT 10.0; Win64; x64)")
                 .build();
     }
+
+    public MarketQuoteDetails fetchQuoteDetails(String ticker) {
+        String formattedSymbol = formatSymbol(ticker);
+        try {
+            JsonNode response = webClient.get()
+                    .uri(uriBuilder -> uriBuilder
+                            .path("/v8/finance/chart/{symbol}")
+                            .queryParam("interval", "1d")
+                            .queryParam("range", "1d")
+                            .build(formattedSymbol))
+                    .retrieve()
+                    .bodyToMono(JsonNode.class)
+                    .block();
+
+            return parseQuoteDetailsResponse(response);
+        } catch (Exception e) {
+            System.err.println("Erro ao buscar cotação estendida do Yahoo Finance para " + formattedSymbol + ": " + e.getMessage());
+            return null;
+        }
+    }
+
+    public MarketQuoteDetails parseQuoteDetailsResponse(JsonNode root) {
+        if (root == null || !root.has("chart")) {
+            return null;
+        }
+        JsonNode resultNode = root.path("chart").path("result");
+        if (!resultNode.isArray() || resultNode.isEmpty()) {
+            return null;
+        }
+
+        JsonNode item = resultNode.get(0);
+        JsonNode meta = item.path("meta");
+
+        BigDecimal price = null;
+        if (meta.hasNonNull("regularMarketPrice")) {
+            price = BigDecimal.valueOf(meta.get("regularMarketPrice").asDouble()).setScale(2, RoundingMode.HALF_UP);
+        } else if (meta.hasNonNull("chartPreviousClose")) {
+            price = BigDecimal.valueOf(meta.get("chartPreviousClose").asDouble()).setScale(2, RoundingMode.HALF_UP);
+        }
+
+        if (price == null) {
+            List<HistoricalPrice> prices = parseChartResponse(root);
+            if (prices != null && !prices.isEmpty()) {
+                price = prices.get(prices.size() - 1).getPrecoFechamento();
+            }
+        }
+
+        BigDecimal high52 = meta.hasNonNull("fiftyTwoWeekHigh")
+                ? BigDecimal.valueOf(meta.get("fiftyTwoWeekHigh").asDouble()).setScale(2, RoundingMode.HALF_UP)
+                : null;
+        BigDecimal low52 = meta.hasNonNull("fiftyTwoWeekLow")
+                ? BigDecimal.valueOf(meta.get("fiftyTwoWeekLow").asDouble()).setScale(2, RoundingMode.HALF_UP)
+                : null;
+
+        if (price != null) {
+            return new MarketQuoteDetails(price, high52, low52);
+        }
+        return null;
+    }
+
 
     public List<HistoricalPrice> fetchPrices(String ticker, LocalDate start, LocalDate end, Periodicity periodicity) {
         String formattedSymbol = formatSymbol(ticker);
