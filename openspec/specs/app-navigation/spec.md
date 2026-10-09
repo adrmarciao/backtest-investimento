@@ -18,11 +18,15 @@ The frontend application SHALL display a left sidebar navigation panel that foll
 - **THEN** the sidebar SHALL toggle between Navigation Drawer expanded state (showing icons and text labels) and Navigation Rail collapsed state (showing icons with labels centered below or tooltips), preserving space for the main content area.
 
 ### Requirement: Grouped Navigation Structure
-The sidebar SHALL organize navigation items into categorized groups ("Simulador & Estratégia", "Dados de Mercado") with icons and distinct group headers.
+The sidebar SHALL organize navigation items into hierarchical parent menus ("Simulador & Estratégia", "Dados de Mercado") containing expandable and collapsible submenus in a single-accordion pattern.
 
-#### Scenario: Display Categorized Navigation Groups
-- **WHEN** the sidebar is rendered in expanded state
-- **THEN** navigation items SHALL be visually grouped under category headings with corresponding icons for each navigation item.
+#### Scenario: Expand Parent Menu
+- **WHEN** the user clicks on a parent menu header in the expanded sidebar
+- **THEN** the parent menu SHALL toggle its submenus visibility, and automatically collapse any other currently open parent menu.
+
+#### Scenario: Navigate via Submenu Item
+- **WHEN** the user clicks on a submenu item under an expanded parent menu
+- **THEN** the application SHALL switch the active view to display the selected module and highlight the active submenu item.
 
 ### Requirement: Responsive Drawer Navigation
 The application SHALL adapt sidebar navigation for smaller screen widths (mobile/tablet) by rendering a collapsible overlay drawer menu or MD3 Navigation Bar accessible via a hamburger icon.
@@ -30,3 +34,10 @@ The application SHALL adapt sidebar navigation for smaller screen widths (mobile
 #### Scenario: Mobile Screen Layout
 - **WHEN** the viewport width is below 768px
 - **THEN** the sidebar SHALL collapse into an off-canvas modal drawer or bottom Navigation Bar triggered by a top-bar hamburger toggle button, adhering to MD3 touch target guidelines.
+
+### Requirement: Collapsed Sidebar Submenu Access
+The sidebar SHALL provide access to submenus via a flyout/popover menu when hovered in the collapsed (~64px) sidebar state.
+
+#### Scenario: Hover Parent Menu in Collapsed State
+- **WHEN** the user hovers over a parent menu icon while the sidebar is collapsed
+- **THEN** a flyout popover menu SHALL appear displaying the submenus for direct selection.

@@ -507,9 +507,9 @@ export default function PurchasePlanTab() {
     try {
       const updated = {
         ...config,
-        altaAno: tempSettings.altaAno ? Number(tempSettings.altaAno) : config.altaAno,
-        fiboUp: tempSettings.fiboUp ? Number(tempSettings.fiboUp) : config.fiboUp,
-        fiboDown: tempSettings.fiboDown ? Number(tempSettings.fiboDown) : config.fiboDown,
+        altaAno: tempSettings.altaAno !== '' && tempSettings.altaAno !== null ? Number(tempSettings.altaAno) : null,
+        fiboUp: tempSettings.fiboUp !== '' && tempSettings.fiboUp !== null ? Number(tempSettings.fiboUp) : null,
+        fiboDown: tempSettings.fiboDown !== '' && tempSettings.fiboDown !== null ? Number(tempSettings.fiboDown) : null,
       };
       await purchasePlanService.saveConfig(updated);
       setConfig(updated);
@@ -520,6 +520,15 @@ export default function PurchasePlanTab() {
       showToast('Erro ao salvar parâmetros macro', 'error');
     }
   };
+
+  const handleResetMacroSettingsToAuto = () => {
+    setTempSettings({
+      altaAno: '',
+      fiboUp: '',
+      fiboDown: '',
+    });
+  };
+
 
   if (loading) {
     return (
@@ -807,8 +816,8 @@ export default function PurchasePlanTab() {
               </Box>
             ) : (
               <>
-                {/* Linha de Cotação, Máxima e Drawdown */}
-                <Box sx={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 2, textAlign: 'center' }}>
+                {/* Linha de Cotação, Máxima, Mínima e Drawdown */}
+                <Box sx={{ display: 'grid', gridTemplateColumns: { xs: 'repeat(2, 1fr)', sm: 'repeat(4, 1fr)' }, gap: 1.5, textAlign: 'center' }}>
                   <Box sx={{ backgroundColor: '#1f2533', p: 1.2, borderRadius: 2 }}>
                     <Typography variant="caption" sx={{ color: 'text.secondary' }}>Cotação Atual</Typography>
                     <Typography variant="h6" sx={{ fontWeight: 800, color: 'text.primary' }}>
@@ -819,9 +828,30 @@ export default function PurchasePlanTab() {
                   </Box>
 
                   <Box sx={{ backgroundColor: '#1f2533', p: 1.2, borderRadius: 2 }}>
-                    <Typography variant="caption" sx={{ color: 'text.secondary' }}>Máxima do Ano</Typography>
+                    <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 0.5 }}>
+                      <Typography variant="caption" sx={{ color: 'text.secondary' }}>Máxima (52 sem)</Typography>
+                      {config.altaAno != null && (
+                        <Chip label="Manual" size="small" sx={{ fontSize: '0.6rem', height: 16, backgroundColor: '#374151' }} />
+                      )}
+                    </Box>
                     <Typography variant="h6" sx={{ fontWeight: 800, color: 'text.secondary' }}>
-                      {config.altaAno ? Number(config.altaAno).toLocaleString('pt-BR') : '---'}
+                      {benchmarkStatus?.altaAno != null
+                        ? Number(benchmarkStatus.altaAno).toLocaleString('pt-BR')
+                        : '---'}
+                    </Typography>
+                  </Box>
+
+                  <Box sx={{ backgroundColor: '#1f2533', p: 1.2, borderRadius: 2 }}>
+                    <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 0.5 }}>
+                      <Typography variant="caption" sx={{ color: 'text.secondary' }}>Mínima (52 sem)</Typography>
+                      {config.fiboDown != null && (
+                        <Chip label="Manual" size="small" sx={{ fontSize: '0.6rem', height: 16, backgroundColor: '#374151' }} />
+                      )}
+                    </Box>
+                    <Typography variant="h6" sx={{ fontWeight: 800, color: 'text.secondary' }}>
+                      {benchmarkStatus?.fiboDown != null
+                        ? Number(benchmarkStatus.fiboDown).toLocaleString('pt-BR')
+                        : '---'}
                     </Typography>
                   </Box>
 
@@ -1480,34 +1510,47 @@ export default function PurchasePlanTab() {
         <DialogTitle sx={{ fontWeight: 700 }}>Parâmetros do Termômetro Macro</DialogTitle>
         <DialogContent sx={{ display: 'flex', flexDirection: 'column', gap: 2, pt: 1 }}>
           <Typography variant="body2" sx={{ color: 'text.secondary' }}>
-            Ajuste os parâmetros de referência para o cálculo do Drawdown e da retração de Fibonacci do benchmark selecionado.
+            Ajuste os parâmetros de referência para o cálculo do Drawdown e da retração de Fibonacci. Deixe em branco para utilizar os dados automáticos capturados do Google Finance.
           </Typography>
           <TextField
             label="Máxima do Ano (Pts)"
             type="number"
+            placeholder={benchmarkStatus?.altaAno ? `Automático (${benchmarkStatus.altaAno})` : 'Automático (Google Finance)'}
             value={tempSettings.altaAno}
             onChange={(e) => setTempSettings({ ...tempSettings, altaAno: e.target.value })}
           />
           <TextField
             label="Fibo Up (Topo da Onda)"
             type="number"
+            placeholder={benchmarkStatus?.fiboUp ? `Automático (${benchmarkStatus.fiboUp})` : 'Automático (Google Finance)'}
             value={tempSettings.fiboUp}
             onChange={(e) => setTempSettings({ ...tempSettings, fiboUp: e.target.value })}
           />
           <TextField
             label="Fibo Down (Fundo da Onda)"
             type="number"
+            placeholder={benchmarkStatus?.fiboDown ? `Automático (${benchmarkStatus.fiboDown})` : 'Automático (Google Finance)'}
             value={tempSettings.fiboDown}
             onChange={(e) => setTempSettings({ ...tempSettings, fiboDown: e.target.value })}
           />
         </DialogContent>
-        <DialogActions sx={{ p: 2.5, pt: 1 }}>
-          <Button onClick={() => setOpenSettingsDialog(false)} color="inherit">
-            Cancelar
+        <DialogActions sx={{ p: 2.5, pt: 1, justifyContent: 'space-between' }}>
+          <Button
+            size="small"
+            color="secondary"
+            onClick={handleResetMacroSettingsToAuto}
+            sx={{ textTransform: 'none' }}
+          >
+            Usar Automático (Reset)
           </Button>
-          <Button variant="contained" color="primary" onClick={handleSaveMacroSettings}>
-            Salvar Parâmetros
-          </Button>
+          <Box sx={{ display: 'flex', gap: 1 }}>
+            <Button onClick={() => setOpenSettingsDialog(false)} color="inherit">
+              Cancelar
+            </Button>
+            <Button variant="contained" color="primary" onClick={handleSaveMacroSettings}>
+              Salvar Parâmetros
+            </Button>
+          </Box>
         </DialogActions>
       </Dialog>
 

@@ -35,6 +35,20 @@ services:
       - VITE_API_TARGET=http://backend:8080
     depends_on:
       - backend
+      - expense-tracking
+
+  expense-tracking:
+    build:
+      context: ./expense-tracking
+      dockerfile: Dockerfile
+    container_name: backtest-expense-tracking
+    ports:
+      - "8081:8081"
+    environment:
+      - MONGO_HOST=mongodb
+    depends_on:
+      - mongodb
+
 
 volumes:
   mongo_data:

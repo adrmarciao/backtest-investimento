@@ -1,6 +1,7 @@
 package com.backtest.backend.application.usecase;
 
 import com.backtest.backend.domain.entity.BenchmarkStatus;
+import com.backtest.backend.domain.entity.MarketQuoteDetails;
 import com.backtest.backend.domain.entity.PurchasePlanAsset;
 import com.backtest.backend.domain.entity.PurchasePlanConfig;
 import com.backtest.backend.domain.entity.RoundAllocationResult;
@@ -136,14 +137,22 @@ public class ManagePurchasePlanAssetsUseCase implements ManagePurchasePlanAssets
                 ? benchmark.trim().toUpperCase()
                 : config.getBenchmark();
 
-        BigDecimal currentPrice = marketQuoteGatewayPort.fetchCurrentQuote(targetBenchmark);
+        MarketQuoteDetails quoteDetails = marketQuoteGatewayPort.fetchQuoteDetails(targetBenchmark);
+        BigDecimal currentPrice = quoteDetails != null ? quoteDetails.price() : null;
+        BigDecimal high52 = quoteDetails != null ? quoteDetails.high52Week() : null;
+        BigDecimal low52 = quoteDetails != null ? quoteDetails.low52Week() : null;
+
+        BigDecimal effectiveAlta = (config != null && config.getAltaAno() != null) ? config.getAltaAno() : high52;
+        BigDecimal effectiveFiboUp = (config != null && config.getFiboUp() != null) ? config.getFiboUp() : high52;
+        BigDecimal effectiveFiboDown = (config != null && config.getFiboDown() != null) ? config.getFiboDown() : low52;
 
         return calculatorService.calculateBenchmarkStatus(
                 targetBenchmark,
                 currentPrice,
-                config.getAltaAno(),
-                config.getFiboUp(),
-                config.getFiboDown()
+                effectiveAlta,
+                effectiveFiboUp,
+                effectiveFiboDown
         );
     }
 }
+

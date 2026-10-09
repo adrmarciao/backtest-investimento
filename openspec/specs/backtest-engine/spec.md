@@ -40,30 +40,34 @@ A interface do motor de backtest SHALL permitir a seleção individual e em lote
 
 
 ### Requirement: Verificar critérios fixos contra fundamentos anuais (Fase 1)
-O sistema SHALL, para cada ano com indicadores cadastrados, verificar se os 4 critérios fixos são satisfeitos: P/L real ≤ P/L máx, P/VP real ≤ P/VP máx, Dívida/EBITDA real ≤ Dívida/EBITDA máx, ROE real ≥ ROE mín.
+O sistema SHALL, para cada ano com indicadores cadastrados, verificar os critérios fixos configurados (P/L ≤ P/L máx, P/VP ≤ P/VP máx, Dívida/EBITDA ≤ Dívida/EBITDA máx, ROE ≥ ROE mín). Se um indicador específico for nulo (ausente) em um ano cadastrado, o sistema SHALL ignorar a trava daquele indicador específico (considerando-a satisfeita/`true`) e reprovar o ano apenas se o indicador estiver preenchido e violar o limite estabelecido.
 
-#### Scenario: Ano elegível (todos os critérios satisfeitos)
-- **WHEN** os indicadores reais do ano satisfazem todos os 4 critérios fixos
-- **THEN** o sistema SHALL marcar o ano como elegível e prosseguir para a verificação de preço (Fase 2) em cada período
+#### Scenario: Ano elegível (todos os critérios satisfeitos ou nulos)
+- **WHEN** os indicadores reais do ano satisfazem os critérios fixos configurados ou quando os indicadores configurados são nulos
+- **THEN** o sistema SHALL marcar o ano como elegível e prosseguir para a verificação de preço (Fase 2)
 
-#### Scenario: Ano não elegível (algum critério falha)
-- **WHEN** pelo menos um dos critérios fixos não é satisfeito
-- **THEN** o sistema SHALL pular todos os períodos daquele ano (nenhuma compra é feita)
+#### Scenario: Ano não elegível (indicador presente falha)
+- **WHEN** um indicador cadastrado não é nulo e não satisfaz o limite fixo correspondente
+- **THEN** o sistema SHALL pular os períodos daquele ano (nenhuma compra é feita)
 
 ### Requirement: Verificar preço contra tetos Bazin e Graham (Fase 2)
-O sistema SHALL, para cada período (semanal/mensal) de um ano elegível, buscar o preço de fechamento real via yfinance e comparar com os preços-teto calculados. A compra é executada apenas quando o preço ≤ Teto Bazin **E** preço ≤ Teto Graham.
+O sistema SHALL, para cada período (semanal/mensal) de um ano com indicadores cadastrados, comparar o preço de fechamento com os preços-teto calculáveis. Se um Preço Teto (Bazin ou Graham) for nulo/ausente devido à omissão de dados (DPA, LPA ou VPA), o sistema SHALL ignorar a trava daquele teto específico. A compra é executada se o preço for menor ou igual aos tetos presentes. Se o ano inteiro não estiver cadastrado no histórico fundamentalista, o sistema SHALL não realizar compras naquele ano.
 
-#### Scenario: Preço dentro dos dois tetos — compra executada
-- **WHEN** o preço de fechamento do período é ≤ Teto Bazin e ≤ Teto Graham
-- **THEN** o sistema SHALL registrar compra: valor do aporte ÷ preço = número de cotas adquiridas
+#### Scenario: Preço dentro dos tetos presentes — compra executada
+- **WHEN** o preço de fechamento do período é menor ou igual aos preços-teto calculáveis para o ano
+- **THEN** o sistema SHALL registrar a compra usando o valor do aporte
 
-#### Scenario: Preço acima de pelo menos um teto — compra não executada
-- **WHEN** o preço de fechamento do período excede o Teto Bazin ou o Teto Graham
+#### Scenario: Preço acima de teto presente — compra não executada
+- **WHEN** o preço de fechamento do período excede algum teto presente calculável para o ano
 - **THEN** o sistema SHALL não executar compra naquele período
 
-#### Scenario: Teto Bazin ou Graham é N/A (DPA/LPA/VPA inválido)
-- **WHEN** o Teto Bazin ou Teto Graham é N/A para o ano (DPA ≤ 0, LPA ≤ 0 ou VPA ≤ 0)
-- **THEN** o sistema SHALL considerar o critério como não satisfeito e não comprar
+#### Scenario: Teto Bazin ou Graham é nulo por ausência de dado — trava ignorada
+- **WHEN** o Teto Bazin ou Teto Graham é nulo devido à ausência de indicador (DPA, LPA ou VPA) em um ano cadastrado
+- **THEN** o sistema SHALL ignorar a exigência daquele teto e avaliar a compra apenas pelos tetos restantes
+
+#### Scenario: Ano sem nenhum cadastro fundamentalista — compra não executada
+- **WHEN** um ano de negociação não possui nenhum registro cadastrado no histórico fundamentalista do ativo
+- **THEN** o sistema SHALL pular o ano e não executar compras no período
 
 ### Requirement: Registrar histórico de compras
 O sistema SHALL manter um log completo de todas as compras realizadas, incluindo: data, ticker, preço de compra, valor aportado, número de cotas adquiridas, Preço Teto Bazin do ano, Preço Teto Graham do ano.

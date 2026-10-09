@@ -20,6 +20,7 @@ import AssessmentIcon from '@mui/icons-material/Assessment';
 import AddCircleOutlineIcon from '@mui/icons-material/AddCircleOutlined';
 import AccountBalanceWalletOutlinedIcon from '@mui/icons-material/AccountBalanceWalletOutlined';
 import FiberManualRecordIcon from '@mui/icons-material/FiberManualRecord';
+import ReceiptOutlinedIcon from '@mui/icons-material/ReceiptOutlined';
 
 const EXPANDED_WIDTH = 260;
 const COLLAPSED_WIDTH = 76;
@@ -47,6 +48,11 @@ export default function Sidebar({ activeTab, setActiveTab, isMobileOpen, setIsMo
           id: 'purchase-plan',
           label: 'Plano de Compras',
           icon: <AccountBalanceWalletOutlinedIcon fontSize="small" />,
+        },
+        {
+          id: 'expenses',
+          label: 'Controle de Gastos',
+          icon: <ReceiptOutlinedIcon fontSize="small" />,
         },
       ],
     },

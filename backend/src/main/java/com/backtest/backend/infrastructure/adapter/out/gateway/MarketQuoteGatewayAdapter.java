@@ -1,5 +1,6 @@
 package com.backtest.backend.infrastructure.adapter.out.gateway;
 
+import com.backtest.backend.domain.entity.MarketQuoteDetails;
 import com.backtest.backend.domain.port.out.MarketQuoteGatewayPort;
 import org.springframework.stereotype.Component;
 
@@ -34,4 +35,10 @@ public class MarketQuoteGatewayAdapter implements MarketQuoteGatewayPort {
         }
         return quotes;
     }
+
+    @Override
+    public MarketQuoteDetails fetchQuoteDetails(String ticker) {
+        return googleFinanceClient.fetchQuoteDetails(ticker);
+    }
 }
+

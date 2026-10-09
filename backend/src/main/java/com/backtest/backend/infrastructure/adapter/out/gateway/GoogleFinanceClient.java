@@ -1,6 +1,7 @@
 package com.backtest.backend.infrastructure.adapter.out.gateway;
 
 import com.backtest.backend.domain.entity.HistoricalPrice;
+import com.backtest.backend.domain.entity.MarketQuoteDetails;
 import com.backtest.backend.domain.entity.Periodicity;
 import org.springframework.stereotype.Component;
 import org.springframework.web.reactive.function.client.WebClient;
@@ -22,6 +23,9 @@ public class GoogleFinanceClient {
     private static final Pattern YMLKEC_PATTERN = Pattern.compile("class=\"[^\"]*YMlKec[^\"]*fxKbKc[^\"]*\"[^>]*>([^<]+)<");
     private static final Pattern DATA_PRICE_PATTERN = Pattern.compile("data-last-price=\"([0-9.]+)\"");
 
+    private static final Pattern HIGH_52_PATTERN = Pattern.compile("(?:Alto\\s*[—\\-]?\\s*52\\s*sem|52-week\\s*high)[^<]*</div>\\s*<div[^>]*>([^<]+)<", Pattern.CASE_INSENSITIVE);
+    private static final Pattern LOW_52_PATTERN = Pattern.compile("(?:Baixo\\s*[—\\-]?\\s*52\\s*sem|52-week\\s*low)[^<]*</div>\\s*<div[^>]*>([^<]+)<", Pattern.CASE_INSENSITIVE);
+
     public GoogleFinanceClient(WebClient.Builder webClientBuilder, YahooFinanceClient yahooFinanceFallback) {
         this.webClient = webClientBuilder
                 .baseUrl("https://www.google.com/finance")
@@ -31,9 +35,13 @@ public class GoogleFinanceClient {
         this.yahooFinanceFallback = yahooFinanceFallback;
     }
 
-    public BigDecimal fetchQuote(String ticker) {
+    public MarketQuoteDetails fetchQuoteDetails(String ticker) {
         if (ticker == null || ticker.isBlank()) return null;
         String cleanTicker = ticker.trim().toUpperCase();
+
+        BigDecimal price = null;
+        BigDecimal high52 = null;
+        BigDecimal low52 = null;
 
         try {
             String path = buildPath(cleanTicker);
@@ -44,16 +52,34 @@ public class GoogleFinanceClient {
                     .block();
 
             if (html != null && !html.isBlank()) {
-                BigDecimal parsed = parsePriceFromHtml(html);
-                if (parsed != null && parsed.compareTo(BigDecimal.ZERO) > 0) {
-                    return parsed;
-                }
+                price = parsePriceFromHtml(html);
+                high52 = parseHigh52FromHtml(html);
+                low52 = parseLow52FromHtml(html);
             }
         } catch (Exception e) {
             System.err.println("GoogleFinanceClient: Falha ao buscar cotação para " + cleanTicker + ": " + e.getMessage());
         }
 
-        return fetchFallbackFromYahoo(cleanTicker);
+        if (price != null && high52 != null && low52 != null) {
+            return new MarketQuoteDetails(price, high52, low52);
+        }
+
+        MarketQuoteDetails fallbackDetails = fetchFallbackDetailsFromYahoo(cleanTicker);
+        if (fallbackDetails != null) {
+            if (price == null) price = fallbackDetails.price();
+            if (high52 == null) high52 = fallbackDetails.high52Week();
+            if (low52 == null) low52 = fallbackDetails.low52Week();
+        }
+
+        if (price != null) {
+            return new MarketQuoteDetails(price, high52, low52);
+        }
+        return null;
+    }
+
+    public BigDecimal fetchQuote(String ticker) {
+        MarketQuoteDetails details = fetchQuoteDetails(ticker);
+        return details != null ? details.price() : null;
     }
 
     private String buildPath(String cleanTicker) {
@@ -66,7 +92,8 @@ public class GoogleFinanceClient {
         return "/quote/" + cleanTicker + ":BVMF";
     }
 
-    private BigDecimal parsePriceFromHtml(String html) {
+    public BigDecimal parsePriceFromHtml(String html) {
+        if (html == null) return null;
         Matcher mPrice = DATA_PRICE_PATTERN.matcher(html);
         if (mPrice.find()) {
             try {
@@ -88,7 +115,25 @@ public class GoogleFinanceClient {
         return null;
     }
 
-    private BigDecimal parseCleanNumber(String text) {
+    public BigDecimal parseHigh52FromHtml(String html) {
+        if (html == null) return null;
+        Matcher mHigh = HIGH_52_PATTERN.matcher(html);
+        if (mHigh.find()) {
+            return parseCleanNumber(mHigh.group(1));
+        }
+        return null;
+    }
+
+    public BigDecimal parseLow52FromHtml(String html) {
+        if (html == null) return null;
+        Matcher mLow = LOW_52_PATTERN.matcher(html);
+        if (mLow.find()) {
+            return parseCleanNumber(mLow.group(1));
+        }
+        return null;
+    }
+
+    public BigDecimal parseCleanNumber(String text) {
         if (text == null) return null;
         String cleaned = text.replace("R$", "")
                 .replace("\u00A0", "")
@@ -111,23 +156,20 @@ public class GoogleFinanceClient {
         }
     }
 
-    private BigDecimal fetchFallbackFromYahoo(String cleanTicker) {
+    private MarketQuoteDetails fetchFallbackDetailsFromYahoo(String cleanTicker) {
         try {
             String yahooSymbol = cleanTicker;
             if ("IBOV".equals(cleanTicker)) yahooSymbol = "^BVSP";
-            LocalDate now = LocalDate.now();
-            List<HistoricalPrice> prices = yahooFinanceFallback.fetchPrices(
-                    yahooSymbol,
-                    now.minusDays(7),
-                    now,
-                    Periodicity.SEMANAL
-            );
-            if (prices != null && !prices.isEmpty()) {
-                return prices.get(prices.size() - 1).getPrecoFechamento();
-            }
+            return yahooFinanceFallback.fetchQuoteDetails(yahooSymbol);
         } catch (Exception e) {
             System.err.println("YahooFinance fallback falhou para " + cleanTicker + ": " + e.getMessage());
         }
         return null;
     }
+
+    private BigDecimal fetchFallbackFromYahoo(String cleanTicker) {
+        MarketQuoteDetails details = fetchFallbackDetailsFromYahoo(cleanTicker);
+        return details != null ? details.price() : null;
+    }
 }
+
