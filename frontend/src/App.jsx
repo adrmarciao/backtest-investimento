@@ -12,6 +12,7 @@ import CriteriaTab from './components/CriteriaTab';
 import IndicatorsTab from './components/IndicatorsTab';
 import BacktestTab from './components/BacktestTab';
 import PurchasePlanTab from './components/PurchasePlanTab';
+import ExpensesTab from './components/ExpensesTab';
 
 export default function App() {
   const [activeTab, setActiveTab] = useState('purchase-plan');
@@ -125,6 +126,7 @@ export default function App() {
         {/* Tab Contents */}
         <Box component="main" sx={{ flexGrow: 1, p: { xs: 2, md: 4 }, overflowY: 'auto' }}>
           {activeTab === 'purchase-plan' && <PurchasePlanTab />}
+          {activeTab === 'expenses' && <ExpensesTab />}
           {activeTab === 'assets' && <AssetsTab />}
           {activeTab === 'criteria' && <CriteriaTab />}
           {activeTab === 'indicators' && <IndicatorsTab />}
