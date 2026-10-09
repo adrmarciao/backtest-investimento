@@ -5,6 +5,7 @@ import com.backtest.expense.expense_tracking.port.ReceiptExtractionPort;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.stereotype.Component;
 import org.springframework.web.reactive.function.client.WebClient;
 
@@ -14,6 +15,7 @@ import java.util.List;
 import java.util.Map;
 
 @Component
+@ConditionalOnProperty(name = "expense.extraction.engine", havingValue = "ai", matchIfMissing = true)
 public class GenerativeAIReceiptExtractionAdapter implements ReceiptExtractionPort {
 
     private final String apiKey;
