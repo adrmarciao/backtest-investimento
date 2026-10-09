@@ -1,22 +1,27 @@
 import React, { useState, useEffect } from 'react';
-import { Box, Typography, Card, CardContent, Grid, CircularProgress } from '@mui/material';
+import { Box, Typography, Card, Grid } from '@mui/material';
 import { QRCodeCanvas } from 'qrcode.react';
+import { getExpenses } from '../services/expenseApi';
+import ExpenseList from './ExpenseList';
 
 export default function ExpensesTab() {
   const [expenses, setExpenses] = useState([]);
   const [loading, setLoading] = useState(true);
 
+  const fetchExpenses = async () => {
+    setLoading(true);
+    try {
+      const data = await getExpenses();
+      setExpenses(data);
+    } catch (err) {
+      console.error(err);
+    } finally {
+      setLoading(false);
+    }
+  };
+
   useEffect(() => {
-    fetch('/api/expenses')
-      .then(res => res.json())
-      .then(data => {
-        setExpenses(data);
-        setLoading(false);
-      })
-      .catch(err => {
-        console.error(err);
-        setLoading(false);
-      });
+    fetchExpenses();
   }, []);
 
   // Use the current origin + /upload path
@@ -30,38 +35,7 @@ export default function ExpensesTab() {
 
       <Grid container spacing={3}>
         <Grid item xs={12} md={8}>
-          {loading ? (
-            <CircularProgress />
-          ) : (
-            <Box>
-              {expenses.length === 0 ? (
-                <Typography color="text.secondary">Nenhuma despesa registrada ainda.</Typography>
-              ) : (
-                expenses.map((expense) => (
-                  <Card key={expense.id} sx={{ mb: 2, bgcolor: '#171c26', border: '1px solid #43474e' }}>
-                    <CardContent>
-                      <Typography variant="h6" sx={{ color: '#d4e3ff' }}>{expense.storeName}</Typography>
-                      <Typography variant="body2" sx={{ color: '#a0a3ab', mb: 1 }}>
-                        Data: {expense.date ? new Date(expense.date).toLocaleDateString() : 'N/A'}
-                      </Typography>
-                      
-                      <Box sx={{ mt: 2, mb: 1 }}>
-                        {expense.items && expense.items.map((item, idx) => (
-                          <Typography key={idx} variant="body2" sx={{ color: '#c4c7d0' }}>
-                            • {item.description}: R$ {item.price}
-                          </Typography>
-                        ))}
-                      </Box>
-                      
-                      <Typography variant="subtitle1" sx={{ mt: 2, fontWeight: 'bold', color: '#fff' }}>
-                        Total: R$ {expense.totalAmount}
-                      </Typography>
-                    </CardContent>
-                  </Card>
-                ))
-              )}
-            </Box>
-          )}
+          <ExpenseList expenses={expenses} loading={loading} onRefresh={fetchExpenses} />
         </Grid>
         
         <Grid item xs={12} md={4}>

@@ -13,10 +13,14 @@ import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.util.List;
 
+import org.springframework.http.MediaType;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.multipart;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
@@ -54,5 +58,27 @@ class ExpenseControllerTest {
         mockMvc.perform(get("/api/expenses"))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$[0].id").value("123"));
+    }
+
+    @Test
+    void shouldUpdateExpense() throws Exception {
+        Expense mockExpense = new Expense("Updated Store", LocalDate.now(), new BigDecimal("20.00"), List.of());
+        mockExpense.setId("123");
+        when(expenseService.updateExpense(eq("123"), any())).thenReturn(mockExpense);
+
+        String json = "{\"storeName\":\"Updated Store\",\"date\":\"2026-10-09\",\"totalAmount\":20.00,\"items\":[]}";
+
+        mockMvc.perform(put("/api/expenses/123")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(json))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.id").value("123"))
+                .andExpect(jsonPath("$.storeName").value("Updated Store"));
+    }
+
+    @Test
+    void shouldDeleteExpense() throws Exception {
+        mockMvc.perform(delete("/api/expenses/123"))
+                .andExpect(status().isNoContent());
     }
 }

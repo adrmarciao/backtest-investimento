@@ -31,4 +31,20 @@ public class ExpenseController {
     public ResponseEntity<List<Expense>> listExpenses() {
         return ResponseEntity.ok(expenseService.listAllExpenses());
     }
+
+    @PutMapping("/{id}")
+    public ResponseEntity<Expense> updateExpense(@PathVariable String id, @RequestBody Expense expense) {
+        try {
+            Expense updatedExpense = expenseService.updateExpense(id, expense);
+            return ResponseEntity.ok(updatedExpense);
+        } catch (RuntimeException e) {
+            return ResponseEntity.notFound().build();
+        }
+    }
+
+    @DeleteMapping("/{id}")
+    public ResponseEntity<Void> deleteExpense(@PathVariable String id) {
+        expenseService.deleteExpense(id);
+        return ResponseEntity.noContent().build();
+    }
 }
