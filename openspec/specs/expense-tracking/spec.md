@@ -28,3 +28,17 @@ The system SHALL provide a view to list all successfully processed and stored ex
 #### Scenario: User views their expenses
 - **WHEN** the user navigates to the "Controle de Gastos" tab
 - **THEN** the system retrieves and displays a list of all recorded expenses
+
+### Requirement: Update an expense record
+The system SHALL allow updating the details of an existing expense record (e.g., date, total amount, store name).
+
+#### Scenario: Expense is updated successfully
+- **WHEN** a valid update request is received for an existing expense
+- **THEN** the system updates the corresponding record and persists the changes
+
+### Requirement: Delete an expense record
+The system SHALL allow the deletion of an existing expense record.
+
+#### Scenario: Expense is deleted successfully
+- **WHEN** a valid delete request is received for an existing expense
+- **THEN** the system permanently removes the corresponding record
