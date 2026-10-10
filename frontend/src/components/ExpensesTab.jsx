@@ -33,28 +33,42 @@ export default function ExpensesTab() {
         Controle de Gastos
       </Typography>
 
-      <Grid container spacing={3}>
-        <Grid item xs={12} md={8}>
+      <Box sx={{ display: 'flex', flexDirection: 'column', gap: 5 }}>
+        <Box>
           <ExpenseList expenses={expenses} loading={loading} onRefresh={fetchExpenses} />
-        </Grid>
+        </Box>
         
-        <Grid item xs={12} md={4}>
-          <Card sx={{ bgcolor: '#171c26', textAlign: 'center', p: 3, border: '1px solid #43474e' }}>
-            <Typography variant="h6" sx={{ mb: 2, color: '#fff' }}>
-              Scanner de Recibo Mobile
-            </Typography>
-            <Typography variant="body2" sx={{ mb: 3, color: '#a0a3ab' }}>
-              Escaneie este QR Code com seu celular para capturar e enviar recibos.
-            </Typography>
-            <Box sx={{ display: 'inline-flex', bgcolor: '#fff', p: 2, borderRadius: 2 }}>
-              <QRCodeCanvas value={uploadUrl} size={150} level="H" />
-            </Box>
-            <Typography variant="caption" display="block" sx={{ mt: 2, wordBreak: 'break-all', color: '#7a7e86' }}>
-              {uploadUrl}
-            </Typography>
-          </Card>
-        </Grid>
-      </Grid>
+        <Card sx={{ 
+          bgcolor: '#1e2330', 
+          textAlign: 'center', 
+          p: 4, 
+          border: '1px solid #43474e', 
+          borderRadius: 3,
+          boxShadow: '0 8px 32px rgba(0,0,0,0.4)',
+          maxWidth: 600,
+          mx: 'auto',
+          width: '100%'
+        }}>
+          <Typography variant="h5" sx={{ mb: 2, color: '#e2e2e9', fontWeight: 'bold' }}>
+            Scanner de Recibo Mobile
+          </Typography>
+          <Typography variant="body1" sx={{ mb: 4, color: '#a0a3ab' }}>
+            Escaneie este QR Code com seu celular para capturar e enviar recibos de forma rápida e fácil.
+          </Typography>
+          <Box sx={{ 
+            display: 'inline-flex', 
+            bgcolor: '#fff', 
+            p: 3, 
+            borderRadius: 3,
+            boxShadow: '0 4px 12px rgba(0,0,0,0.1)'
+          }}>
+            <QRCodeCanvas value={uploadUrl} size={180} level="H" />
+          </Box>
+          <Typography variant="caption" display="block" sx={{ mt: 3, wordBreak: 'break-all', color: '#7a7e86', fontFamily: 'monospace' }}>
+            {uploadUrl}
+          </Typography>
+        </Card>
+      </Box>
     </Box>
   );
 }
